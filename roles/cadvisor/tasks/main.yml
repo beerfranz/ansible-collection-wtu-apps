@@ -1,0 +1,13 @@
+---
+- name: Create install directory
+  become: true
+  file:
+    path: "{{ cadvisor_install_path }}"
+    state: directory
+
+- name: Install docker-compose
+  become: true
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ cadvisor_install_path }}/docker-compose.yml"
+    mode: '0644'

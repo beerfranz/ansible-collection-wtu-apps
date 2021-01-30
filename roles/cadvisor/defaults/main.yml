@@ -1,0 +1,4 @@
+cadvisor_install_path: /appli/cadvisor
+
+cadvisor_docker_image_tag: v0.33.0
+cadvisor_docker_network: wtu
