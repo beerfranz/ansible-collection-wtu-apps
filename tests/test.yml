@@ -7,6 +7,7 @@
     - role: ../roles/traefik
     - role: ../roles/cadvisor
     - role: ../roles/prometheus
+    - role: ../roles/grafana
 
   pre_tasks:
     - name: Update /etc/hosts
@@ -15,7 +16,10 @@
         path: /etc/hosts
         regexp: "{{ item }}"
         line: "127.0.0.1 {{ item }}"
-      with_items: [ "{{ traefik_hostname }}", "{{ prometheus_hostname }}" ]
+      with_items:
+        - "{{ traefik_hostname }}"
+        - "{{ prometheus_hostname }}"
+        - "{{ grafana_hostname }}"
 
     - name: Create docker networks
       become: yes
@@ -23,35 +27,18 @@
         name: "{{ test_docker_network }}"
 
   tasks:
-    - name: Run fluent-bit
+    - name: Run containers
       become: yes
       docker_compose:
-        project_src: "{{ fluent_bit_install_path }}"
+        project_src: "{{ item }}"
         restarted: yes
-
-    - name: Run Loki
-      become: yes
-      docker_compose:
-        project_src: "{{ loki_install_path }}"
-        restarted: yes
-
-    - name: Run Traefik
-      become: yes
-      docker_compose:
-        project_src: "{{ traefik_install_path }}"
-        restarted: yes
-
-    - name: Run cAdvisor
-      become: yes
-      docker_compose:
-        project_src: "{{ cadvisor_install_path }}"
-        restarted: yes
-
-    - name: Run Prometheus
-      become: yes
-      docker_compose:
-        project_src: "{{ prometheus_install_path }}"
-        restarted: yes
+      loop:
+        - "{{ fluent_bit_install_path }}"
+        - "{{ loki_install_path }}"
+        - "{{ traefik_install_path }}"
+        - "{{ cadvisor_install_path }}"
+        - "{{ prometheus_install_path }}"
+        - "{{ grafana_install_path }}"
 
 - name: Test fluent-bit
   import_playbook: test-fluent-bit.yml
@@ -64,3 +51,9 @@
 
 - name: Test Prometheus
   import_playbook: test-prometheus.yml
+
+- name: Test Grafana
+  import_playbook: test-grafana.yml
+
+- name: Stop test
+  import_playbook: test-end.yml

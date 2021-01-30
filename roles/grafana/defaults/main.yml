@@ -1,0 +1,9 @@
+grafana_install_path: /appli/grafana
+
+grafana_docker_image_tag: 7.3.7
+grafana_docker_network: wtu
+
+grafana_hostname: grafana.local
+
+grafana_https: true
+grafana_https_le: true

@@ -1,0 +1,21 @@
+---
+- name: Create Grafana directory {{ grafana_install_path }}
+  become: true
+  file:
+    path: "{{ grafana_install_path }}"
+    state: directory
+
+- name: Create Grafana data directory in {{ grafana_install_path }}
+  become: yes
+  file:
+    path: "{{ grafana_install_path }}/data"
+    state: directory
+    owner: '472'
+    group: '1'
+
+- name: Install grafana docker-compose in {{ grafana_install_path }}
+  become: yes
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ grafana_install_path }}/"
+    mode: '0644'

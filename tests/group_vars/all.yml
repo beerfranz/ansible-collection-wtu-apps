@@ -16,6 +16,12 @@ prometheus_hostname: prometheus.ansible-test
 prometheus_https: false
 prometheus_https_le: false
 
+grafana_install_path: "{{ test_install_path }}/grafana"
+grafana_docker_network: "{{ test_docker_network }}"
+grafana_hostname: grafana.ansible-test
+grafana_https: false
+grafana_https_le: false
+
 traefik_install_path: "{{ test_install_path }}/traefik"
 traefik_docker_network: "{{ test_docker_network }}"
 traefik_hostname: traefik.ansible-test
