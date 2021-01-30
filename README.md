@@ -5,10 +5,10 @@ Compile all applications for Worship the Useless.
 Installed with docker-compose.
 
 Applications:
-* Nextcloud
+* File sharing: Nextcloud
 * Web site
 * CRM
-* Supervision
+  * SuiteCRM
 
 Technical apps:
 * Security
