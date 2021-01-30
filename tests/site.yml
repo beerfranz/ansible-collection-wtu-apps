@@ -1,0 +1,31 @@
+---
+- name: Install components
+  hosts: all
+  roles:
+    - role: ../roles/cadvisor
+      vars:
+        cadvisor_docker_network: "{{ test_docker_network }}"
+
+
+  pre_tasks:
+    # - name: Add traefik host in /etc/hosts
+    #   become: true
+    #   lineinfile:
+    #     path: /etc/hosts
+    #     regexp: "traefik.{{ domain }}"
+    #     line: "127.0.0.1  traefik.{{ domain }}"
+
+    - name: Create docker networks
+      become: true
+      docker_network:
+        name: "{{ test_docker_network }}"
+
+  tasks:
+    - name: Run cAdvisor
+      become: true
+      docker_compose:
+        project_src: "{{ cadvisor_install_path }}"
+        build: no
+
+- name: Test cAdvisor
+  import_playbook: test-cadvisor.yml

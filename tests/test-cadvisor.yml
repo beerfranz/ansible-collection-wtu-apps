@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Wait for container is healthy
+      become: true
+      shell:
+        chdir: "{{ cadvisor_install_path }}"
+        cmd: docker-compose ps cadvisor | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0

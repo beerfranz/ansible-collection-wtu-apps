@@ -1,0 +1,5 @@
+test_docker_network: ansible-test
+test_install_path: /ansible-test
+
+cadvisor_install_path: "{{ test_install_path }}/cadvisor"
+cadvisor_docker_network: "{{ test_docker_network }}"
