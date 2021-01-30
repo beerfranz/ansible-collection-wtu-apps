@@ -1,0 +1,33 @@
+---
+- name: Create fluent bit directory
+  become: true
+  file:
+    path: "{{ fluent_bit_install_path }}"
+    state: directory
+
+- name: Install fluent bit docker-compose
+  become: true
+  template:
+    src: docker-compose.yml
+    dest: "{{ fluent_bit_install_path }}/"
+    mode: '0644'
+
+- name: Create fluent bit configuration directory
+  become: true
+  file:
+    path: "{{ fluent_bit_install_path }}/cfg"
+    state: directory
+
+- name: Install fluent bit configuration file
+  become: true
+  template:
+    src: fluent-bit.conf
+    dest: "{{ fluent_bit_install_path }}/cfg/"
+    mode: '0644'
+
+- name: Install fluent bit parsers configuration file
+  become: true
+  template:
+    src: parsers.conf
+    dest: "{{ fluent_bit_install_path }}/cfg/"
+    mode: '0644'

@@ -2,30 +2,65 @@
 - name: Install components
   hosts: all
   roles:
+    - role: ../roles/fluent-bit
+    - role: ../roles/loki
+    - role: ../roles/traefik
     - role: ../roles/cadvisor
-      vars:
-        cadvisor_docker_network: "{{ test_docker_network }}"
-
+    - role: ../roles/prometheus
 
   pre_tasks:
-    # - name: Add traefik host in /etc/hosts
-    #   become: true
-    #   lineinfile:
-    #     path: /etc/hosts
-    #     regexp: "traefik.{{ domain }}"
-    #     line: "127.0.0.1  traefik.{{ domain }}"
+    - name: Update /etc/hosts
+      become: yes
+      lineinfile:
+        path: /etc/hosts
+        regexp: "{{ item }}"
+        line: "127.0.0.1 {{ item }}"
+      with_items: [ "{{ traefik_hostname }}", "{{ prometheus_hostname }}" ]
 
     - name: Create docker networks
-      become: true
+      become: yes
       docker_network:
         name: "{{ test_docker_network }}"
 
   tasks:
+    - name: Run fluent-bit
+      become: yes
+      docker_compose:
+        project_src: "{{ fluent_bit_install_path }}"
+        restarted: yes
+
+    - name: Run Loki
+      become: yes
+      docker_compose:
+        project_src: "{{ loki_install_path }}"
+        restarted: yes
+
+    - name: Run Traefik
+      become: yes
+      docker_compose:
+        project_src: "{{ traefik_install_path }}"
+        restarted: yes
+
     - name: Run cAdvisor
-      become: true
+      become: yes
       docker_compose:
         project_src: "{{ cadvisor_install_path }}"
-        build: no
+        restarted: yes
+
+    - name: Run Prometheus
+      become: yes
+      docker_compose:
+        project_src: "{{ prometheus_install_path }}"
+        restarted: yes
+
+- name: Test fluent-bit
+  import_playbook: test-fluent-bit.yml
+
+- name: Test Loki
+  import_playbook: test-loki.yml
 
 - name: Test cAdvisor
   import_playbook: test-cadvisor.yml
+
+- name: Test Prometheus
+  import_playbook: test-prometheus.yml

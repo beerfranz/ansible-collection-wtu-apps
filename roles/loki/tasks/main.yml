@@ -1,0 +1,33 @@
+---
+- name: Create directory {{ loki_install_path }}
+  become: true
+  file:
+    path: "{{ loki_install_path }}"
+    state: directory
+
+- name: Install docker-compose in {{ loki_install_path }}
+  become: true
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ loki_install_path }}/"
+    mode: '0644'
+
+- name: Create configuration directory in {{ loki_install_path }}
+  become: true
+  file:
+    path: "{{ loki_install_path }}/cfg"
+    state: directory
+
+- name: Create data directory in {{ loki_install_path }}
+  become: true
+  file:
+    path: "{{ loki_install_path }}/data"
+    state: directory
+    owner: '10001'
+
+- name: Install configuration file in {{ loki_install_path }}
+  become: true
+  template:
+    src: config.yaml
+    dest: "{{ loki_install_path }}/cfg/"
+    mode: '0644'

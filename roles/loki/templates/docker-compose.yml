@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  loki:
+    image: grafana/loki:{{ loki_docker_image_tag }}
+    restart: always
+    networks:
+      - {{ loki_docker_network }}
+    volumes:
+      - ./data:/loki
+      - ./cfg/config.yaml:/etc/loki/local-config.yaml
+    labels:
+      - app=loki
+    healthcheck:
+      test: wget localhost:3100/ready -q -O - > /dev/null 2>&1
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ loki_docker_network }}:
+    external: true

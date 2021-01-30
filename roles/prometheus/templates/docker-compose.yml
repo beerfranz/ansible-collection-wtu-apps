@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  prometheus:
+    image: prom/prometheus:{{ prometheus_docker_image_tag }}
+    restart: always
+    volumes:
+      - ./cfg/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data:/prometheus
+    networks:
+      - {{ prometheus_docker_network }}
+    labels:
+      - app=prometheus
+      - traefik.http.routers.prometheus.rule=Host(`{{ prometheus_hostname }}`)
+      - traefik.http.routers.prometheus.middlewares=admin
+{% if prometheus_https %}
+      # Web HTTPS
+      - traefik.http.routers.prometheus-unsecure.rule=Host(`{{ prometheus_hostname }}`)
+      - traefik.http.routers.prometheus-unsecure.middlewares=force_https
+      - traefik.http.routers.prometheus.tls=true
+      # HTTPS - letsencrypt activation
+{% if prometheus_https_le %}
+      - traefik.http.routers.prometheus.tls.certresolver=le
+{% endif %}
+{% endif %}
+    healthcheck:
+      test: wget localhost:9090/-/healthy -q -O - > /dev/null 2>&1
+ 
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ prometheus_docker_network }}:
+    external: true

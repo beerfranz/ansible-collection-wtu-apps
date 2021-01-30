@@ -20,12 +20,12 @@ services:
       - /dev/kmsg
     healthcheck:
       test: wget localhost:8080/healthz -q -O - > /dev/null 2>&1
-    # logging:
-    #   driver: fluentd
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     labels: app
-    #     tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
 
 networks:
   {{ cadvisor_docker_network }}:

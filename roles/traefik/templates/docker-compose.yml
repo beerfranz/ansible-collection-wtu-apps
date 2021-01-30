@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:{{ traefik_docker_image_tag }}
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./cfg/traefik/file_provider:/etc/traefik/file_provider
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/traefik-certificates:/var/certificates
+      - ./.htpasswd:/etc/traefik/.htpasswd
+    labels:
+      - traefik.http.middlewares.force_https.redirectscheme.scheme=https
+      - traefik.http.routers.traefik.rule=Host(`{{ traefik_hostname }}`)
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.middlewares.admin.basicauth.usersFile=/etc/traefik/.htpasswd
+      - traefik.http.routers.traefik.middlewares=admin
+{% if traefik_https %}
+      - traefik.http.routers.traefik-unsecure.rule=Host(`{{ traefik_hostname }}`)
+      - traefik.http.routers.traefik-unsecure.middlewares=force_https
+      - traefik.http.routers.traefik.tls=true
+{% if traefik_https_le %}
+      - traefik.http.routers.traefik.tls.certresolver=le
+{% endif %}
+{% endif %}
+    networks:
+      - {{ traefik_docker_network }}
+    command:
+      - --api
+      - --ping=true
+      - --providers.docker=true
+      - --providers.file.directory=/etc/traefik/file_provider
+      - --accesslog=true
+      - --metrics.prometheus=true
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+{% if traefik_https_le %}
+      - --certificatesResolvers.le.acme.email={{ traefik_https_email }}
+      - --certificatesResolvers.le.acme.storage=/var/certificates/acme.json
+      - --certificatesResolvers.le.acme.httpChallenge.entryPoint=web
+      # - --certificatesResolvers.le.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+{% endif %}
+    healthcheck:
+      test: traefik healthcheck --ping
+
+networks:
+  {{ traefik_docker_network }}:
+    external: true

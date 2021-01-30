@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:{{ fluent_bit_docker_image_tag }}
+    environment:
+      - LOKI_URL={{ fluent_bit_loki_url }}
+    volumes:
+      - ./cfg:/fluent-bit/etc
+    restart: always
+    networks:
+      - {{ fluent_bit_docker_network }}
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    labels:
+      - app=fluent-bit
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ fluent_bit_docker_network }}:
+    external: true

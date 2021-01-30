@@ -1,0 +1,24 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Wait for Prometheus container is healthy
+      become: yes
+      shell:
+        chdir: "{{ prometheus_install_path }}"
+        cmd: docker-compose ps prometheus | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0
+
+    - name: Test Prometheus web UI return HTTP code 401 Unauthorized
+      uri:
+        url: "http://{{ prometheus_hostname }}"
+        status_code: 401
+
+    - name: Test Prometheus web UI return HTTP code 200 when username/password is send
+      uri:
+        url: "http://{{ prometheus_hostname }}"
+        url_username: "{{ traefik_ui_username }}"
+        url_password: "{{ traefik_ui_password }}"

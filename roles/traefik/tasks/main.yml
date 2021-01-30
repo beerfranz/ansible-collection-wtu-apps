@@ -1,0 +1,25 @@
+---
+- name: Create Traefik install directory in {{ traefik_install_path }}
+  become: yes
+  file:
+    path: "{{ traefik_install_path }}"
+    state: directory
+
+- name: Install python lib passlib
+  pip:
+    name: passlib
+
+- name: Generate passwd file for traefik in {{ traefik_install_path }}
+  become: yes
+  htpasswd:
+    path: "{{ traefik_install_path }}/.htpasswd"
+    name: "{{ traefik_ui_username }}"
+    password: "{{ traefik_ui_password }}"
+    mode: 0640
+
+- name: Install Traefik docker-compose in {{ traefik_install_path }}
+  become: yes
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ traefik_install_path }}/"
+    mode: '0644'

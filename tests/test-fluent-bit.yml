@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  tasks:
+    # - name: Wait for container is healthy
+    #   become: yes
+    #   shell:
+    #     chdir: "{{ fluent_bit_install_path }}"
+    #     cmd: docker-compose ps fluent-bit | grep "(healthy)"
+    #   register: cmd_res
+    #   retries: 20
+    #   delay: 15
+    #   until: cmd_res.rc == 0

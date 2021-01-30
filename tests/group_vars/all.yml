@@ -1,5 +1,25 @@
 test_docker_network: ansible-test
 test_install_path: /ansible-test
 
+fluent_bit_install_path: "{{ test_install_path }}/fluent-bit"
+fluent_bit_docker_network: "{{ test_docker_network }}"
+
+loki_install_path: "{{ test_install_path }}/loki"
+loki_docker_network: "{{ test_docker_network }}"
+
 cadvisor_install_path: "{{ test_install_path }}/cadvisor"
 cadvisor_docker_network: "{{ test_docker_network }}"
+
+prometheus_install_path: "{{ test_install_path }}/prometheus"
+prometheus_docker_network: "{{ test_docker_network }}"
+prometheus_hostname: prometheus.ansible-test
+prometheus_https: false
+prometheus_https_le: false
+
+traefik_install_path: "{{ test_install_path }}/traefik"
+traefik_docker_network: "{{ test_docker_network }}"
+traefik_hostname: traefik.ansible-test
+traefik_https: false
+traefik_https_le: false
+traefik_ui_username: ansible-test
+traefik_ui_password: ansible-test

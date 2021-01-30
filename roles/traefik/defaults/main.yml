@@ -1,0 +1,13 @@
+traefik_install_path: /appli/traefik
+
+traefik_docker_image_tag: v2.1.3
+traefik_docker_network: wtu
+
+traefik_hostname: traefik.local
+
+traefik_https: true
+traefik_https_le: true
+traefik_https_email: foo@bar.com
+
+traefik_ui_username: test
+traefik_ui_password: test
