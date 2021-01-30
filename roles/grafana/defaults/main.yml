@@ -7,3 +7,6 @@ grafana_hostname: grafana.local
 
 grafana_https: true
 grafana_https_le: true
+
+grafana_ui_username: ansible-test # only for the first installation of grafana
+grafana_ui_password: ansible-test # only for the first installation of grafana
