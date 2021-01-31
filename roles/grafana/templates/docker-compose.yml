@@ -15,6 +15,7 @@ services:
       - ./data/:/var/lib/grafana
     labels:
       - app=grafana
+      - traefik.enable=true
       - traefik.http.routers.grafana.rule=Host(`{{ grafana_hostname }}`)
       # - traefik.http.routers.grafana.middlewares=admin
 {% if grafana_https %}

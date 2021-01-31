@@ -11,6 +11,7 @@ services:
       - {{ prometheus_docker_network }}
     labels:
       - app=prometheus
+      - traefik.enable=true
       - traefik.http.routers.prometheus.rule=Host(`{{ prometheus_hostname }}`)
       - traefik.http.routers.prometheus.middlewares=admin
 {% if prometheus_https %}

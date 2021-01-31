@@ -13,6 +13,8 @@ services:
       - ./data/traefik-certificates:/var/certificates
       - ./.htpasswd:/etc/traefik/.htpasswd
     labels:
+      - app=traefik
+      - traefik.enable=true
       - traefik.http.middlewares.force_https.redirectscheme.scheme=https
       - traefik.http.routers.traefik.rule=Host(`{{ traefik_hostname }}`)
       - traefik.http.routers.traefik.service=api@internal
@@ -32,6 +34,7 @@ services:
       - --api
       - --ping=true
       - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
       - --providers.file.directory=/etc/traefik/file_provider
       - --accesslog=true
       - --metrics.prometheus=true
@@ -45,6 +48,12 @@ services:
 {% endif %}
     healthcheck:
       test: traefik healthcheck --ping
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.traefik.{{.ID}}"{% endraw %}
 
 networks:
   {{ traefik_docker_network }}:

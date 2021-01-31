@@ -24,7 +24,7 @@ services:
       - APACHE_DISABLE_REWRITE_IP=1
       - TRUSTED_PROXIES=172.16.0.0/12
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: "curl -s http://localhost/status.php | grep -q '\"installed\":true'"
     volumes:
       - ./data/nextcloud:/var/www/html
     restart: always
@@ -35,6 +35,7 @@ services:
       - {{ nextcloud_docker_network }}
     labels:
       - app=nextcloud-app
+      - traefik.enable=true
       - traefik.http.routers.nextcloud.rule=Host(`{{ nextcloud_hostname }}`)
 {% if nextcloud_https %}
       - traefik.http.routers.nextcloud-unsecure.rule=Host(`{{ nextcloud_hostname }}`)
@@ -49,7 +50,7 @@ services:
       options:
         fluentd-address: localhost:24224
         labels: app
-        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+        tag: {% raw %}"docker.nextcloud-app.{{.ID}}"{% endraw %}
 
   nextcloud-db:
     image: postgres:9.6.17-alpine
