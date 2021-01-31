@@ -46,7 +46,6 @@
       become: yes
       docker_compose:
         project_src: "{{ nextcloud_install_path }}"
-        restarted: yes
         services: [ 'nextcloud-db', 'nextcloud-redis' ]
 
     - name: Wait for Nextcloud DB is healthy
@@ -63,7 +62,6 @@
       become: yes
       docker_compose:
         project_src: "{{ nextcloud_install_path }}"
-        restarted: yes
         services: [ 'nextcloud' ]
 
 - name: Test fluent-bit

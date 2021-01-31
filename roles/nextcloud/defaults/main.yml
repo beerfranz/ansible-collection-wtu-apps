@@ -8,10 +8,10 @@ nextcloud_hostname: nextcloud.local
 nextcloud_https: true
 nextcloud_https_le: true
 
-nextcloud_postgres_password: ansible-test
+nextcloud_postgres_password: ansiblePwd
  
-nextcloud_admin_username: ansible-test # only for the first installation of nextcloud
-nextcloud_admin_password: ansible-test # only for the first installation of nextcloud
+nextcloud_admin_username: ansible       # only for the first installation of nextcloud - mustn't container "-"
+nextcloud_admin_password: ansible       # only for the first installation of nextcloud - mustn't container "-"
 
 nextcloud_mail_domain: "{{ nextcloud_hostname }}"
 nextcloud_smtp_user:

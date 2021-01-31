@@ -8,7 +8,7 @@
         chdir: "{{ nextcloud_install_path }}"
         cmd: docker-compose ps nextcloud | grep "(healthy)"
       register: cmd_res
-      retries: 20
+      retries: 40
       delay: 15
       until: cmd_res.rc == 0
 

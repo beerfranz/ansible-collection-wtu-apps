@@ -37,6 +37,6 @@ nextcloud_docker_network: "{{ test_docker_network }}"
 nextcloud_hostname: nextcloud.ansible-test
 nextcloud_https: false
 nextcloud_https_le: false
-nextcloud_admin_username: ansible-test
-nextcloud_admin_password: ansible-test
-nextcloud_postgres_password: ansible-test
+nextcloud_admin_username: ansible
+nextcloud_admin_password: ansible
+nextcloud_postgres_password: ansible
