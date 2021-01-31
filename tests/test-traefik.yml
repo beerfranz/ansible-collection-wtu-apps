@@ -1,15 +1,5 @@
 ---
 - hosts: all
-  roles:
-    - role: ../roles/traefik
-
-  pre_tasks:
-    - name: Add traefik host in /etc/hosts
-      become: yes
-      lineinfile:
-        path: /etc/hosts
-        regexp: "{{ traefik_hostname }}"
-        line: "127.0.0.1  {{ traefik_hostname }}"
 
   tasks:
     - name: Wait for Traefik container is healthy
@@ -32,10 +22,3 @@
         url: "http://{{ traefik_hostname }}"
         url_username: "{{ traefik_ui_username }}"
         url_password: "{{ traefik_ui_password }}"
-
-  post_tasks:
-    - name: Stop traefik
-      become: yes
-      docker_compose:
-        project_src: "{{ traefik_install_path }}"
-        state: absent

@@ -1,0 +1,46 @@
+---
+- name: Download public dashboard {{ grafana_public_dashboard_name }}
+  get_url:
+    url: "{{ grafana_public_dashboard_url}}"
+    dest: "/tmp/{{ grafana_public_dashboard_name }}.json"
+    mode: 0644
+  retries: 5
+
+- name: Set prometheus datasource in dashboard template {{ grafana_public_dashboard_name }}
+  replace:
+    path: "/tmp/{{ grafana_public_dashboard_name }}.json"
+    regexp: "\\${ {{- grafana_public_dashboard_datasource_name | default('DS_PROMETHEUS') -}} }"
+    replace: 'Prometheus'
+
+- name: Remove __input block in dashboard template {{ grafana_public_dashboard_name }}
+  blockinfile:
+    state: absent
+    path: "/tmp/{{ grafana_public_dashboard_name }}.json"
+    block: |
+      "__inputs": [
+        {
+          "name": "{{ grafana_public_dashboard_datasource_name | default('DS_PROMETHEUS') }}",
+          "label": "Prometheus",
+          "description": "",
+          "type": "datasource",
+          "pluginId": "prometheus",
+          "pluginName": "Prometheus"
+        }
+      ],
+
+- name: Add UID if missing
+  when: grafana_public_dashboard_set_uid is defined
+  lineinfile:
+    path: "/tmp/{{ grafana_public_dashboard_name }}.json"
+    regexp: '^  "uid": .*$'
+    insertafter: '^  "id": .*$'
+    line: '  "uid": "{{ grafana_public_dashboard_set_uid }}",'
+
+- name: Import Grafana dashboard {{ grafana_public_dashboard_name }}
+  grafana_dashboard:
+    grafana_url: "{{ 'https' if grafana_https else 'http' }}://{{ grafana_hostname }}"
+    grafana_user: "{{ grafana_ui_username }}"
+    grafana_password: "{{ grafana_ui_password }}"
+    state: present
+    overwrite: yes
+    path: "/tmp/{{ grafana_public_dashboard_name }}.json"

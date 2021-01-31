@@ -1,0 +1,15 @@
+---
+- name: Prepare dashboard {{ grafana_local_dashboard_name }}
+  template:
+    src: "{{ grafana_local_dashboard_name }}.json"
+    dest: /tmp/
+    mode: '0644'
+
+- name: Import dashboard {{ grafana_local_dashboard_name }}
+  grafana_dashboard:
+    grafana_url: "{{ 'https' if grafana_https else 'http' }}://{{ grafana_hostname }}"
+    grafana_user: "{{ grafana_ui_username }}"
+    grafana_password: "{{ grafana_ui_password }}"
+    state: present
+    overwrite: yes
+    path: "/tmp/{{ grafana_local_dashboard_name }}.json"

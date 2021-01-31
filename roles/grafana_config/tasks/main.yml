@@ -1,0 +1,69 @@
+---
+- name: Wait for Grafana API is up
+  uri:
+    url: "{{ 'https' if grafana_https else 'http' }}://{{ grafana_hostname }}/api/org"
+    force_basic_auth: yes
+    url_username: "{{ grafana_ui_username }}"
+    url_password: "{{ grafana_ui_password }}"
+  register: cmd_res
+  retries: 20
+  until: cmd_res.status  == 200
+
+- name: Create Prometheus datasource
+  grafana_datasource:
+    name: "Prometheus"
+    grafana_url: "{{ 'https' if grafana_https else 'http' }}://{{ grafana_hostname }}"
+    grafana_user: "{{ grafana_ui_username }}"
+    grafana_password: "{{ grafana_ui_password }}"
+    org_id: "1"
+    ds_type: "prometheus"
+    is_default: yes
+    url: "http://prometheus:9090"
+
+- name: Create Loki datasource
+  uri:
+    url: "{{ 'https' if grafana_https else 'http' }}://{{ grafana_hostname }}/api/datasources"
+    method: POST
+    body_format: json
+    force_basic_auth: yes
+    url_username: "{{ grafana_ui_username }}"
+    url_password: "{{ grafana_ui_password }}"
+    status_code: [ 200, 409 ]
+    body:
+      name: Loki
+      type: loki
+      url: "http://loki:3100"
+      access: proxy
+
+# - name: Create Loki datasource
+#   grafana_datasource:
+#     name: "Loki"
+#     grafana_url: "{{ 'https' if grafana_https else 'http' }}://{{ grafana_hostname }}"
+#     grafana_user: "{{ grafana_ui_username }}"
+#     grafana_password: "{{ grafana_ui_password }}"
+#     org_id: "1"
+#     ds_type: "loki"
+#     is_default: yes
+#     url: "http://loki:3100"
+
+- import_tasks: import_public_dashboard.yml
+  vars:
+    grafana_public_dashboard_name: node-exporter-full
+    grafana_public_dashboard_url: https://grafana.com/api/dashboards/1860/revisions/21/download
+
+- import_tasks: import_public_dashboard.yml
+  vars:
+    grafana_public_dashboard_name: docker-monitoring
+    grafana_public_dashboard_url: https://grafana.com/api/dashboards/193/revisions/1/download
+    grafana_public_dashboard_set_uid: docker-monitoring
+
+- import_tasks: import_public_dashboard.yml
+  vars:
+    grafana_public_dashboard_name: traefik
+    grafana_public_dashboard_url: https://grafana.com/api/dashboards/12250/revisions/1/download
+    grafana_public_dashboard_set_uid: traefik
+    grafana_public_dashboard_datasource_name: DS_TRAEFIK
+
+- import_tasks: import_local_dashboard.yml
+  vars:
+    grafana_local_dashboard_name: dashboard-logs

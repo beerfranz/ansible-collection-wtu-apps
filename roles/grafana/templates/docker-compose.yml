@@ -8,6 +8,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER={{ grafana_ui_username }}
       - GF_SECURITY_ADMIN_PASSWORD={{ grafana_ui_password }}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
     networks:
       - {{ grafana_docker_network }}
     volumes:

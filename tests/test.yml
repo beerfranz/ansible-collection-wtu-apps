@@ -41,7 +41,30 @@
         - "{{ cadvisor_install_path }}"
         - "{{ prometheus_install_path }}"
         - "{{ grafana_install_path }}"
-        - "{{ nextcloud_install_path }}"
+
+    - name: Run Nextcloud DB
+      become: yes
+      docker_compose:
+        project_src: "{{ nextcloud_install_path }}"
+        restarted: yes
+        services: [ 'nextcloud-db', 'nextcloud-redis' ]
+
+    - name: Wait for Nextcloud DB is healthy
+      become: yes
+      shell:
+        chdir: "{{ nextcloud_install_path }}"
+        cmd: docker-compose ps nextcloud-db | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0
+
+    - name: Run Nextcloud
+      become: yes
+      docker_compose:
+        project_src: "{{ nextcloud_install_path }}"
+        restarted: yes
+        services: [ 'nextcloud' ]
 
 - name: Test fluent-bit
   import_playbook: test-fluent-bit.yml
@@ -57,6 +80,9 @@
 
 - name: Test Grafana
   import_playbook: test-grafana.yml
+
+- name: Test Traefik
+  import_playbook: test-traefik.yml
 
 - name: Test Nextcloud
   import_playbook: test-nextcloud.yml
