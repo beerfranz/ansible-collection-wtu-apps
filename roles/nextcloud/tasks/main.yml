@@ -1,0 +1,131 @@
+---
+- name: Create Nextcloud directory {{ nextcloud_install_path }}
+  become: yes
+  file:
+    path: "{{ nextcloud_install_path }}"
+    state: directory
+
+- name: Create Nextcloud config diretory in {{ nextcloud_install_path }}
+  become: yes
+  file:
+    path: "{{ nextcloud_install_path }}/cfg"
+    state: directory
+
+- name: Create Nextcloud data diretory in {{ nextcloud_install_path }}
+  become: yes
+  file:
+    path: "{{ nextcloud_install_path }}/data"
+    state: directory
+
+- name: Install nextcloud docker-compose in {{ nextcloud_install_path }}
+  become: yes
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ nextcloud_install_path }}/"
+    mode: '0644'
+
+# - name: Get nextcloud container ID
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_dir }}"
+#     cmd: docker-compose ps -q nextcloud | head -1
+#   when: persistent != 'true'
+#   register: nextcloud_container
+
+# - name: Wait for nextcloud container is healthy
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_dir }}"
+#     cmd: docker-compose ps nextcloud | grep "(healthy)"
+#   register: cmd_res
+#   retries: 20
+#   delay: 15
+#   until: cmd_res.rc == 0
+
+# - name: Set admin email
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_install_path }}"
+#     cmd: docker-compose exec -u www-data -T nextcloud php occ user:setting {{ admin_user }} settings email {{ admin_mail }}
+
+
+
+# - name: Get nextcloud config file
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_install_path }}"
+#     cmd: "docker cp -a {{ nextcloud_container.stdout }}:/var/www/html/config/config.php {{ nextcloud_install_path }}/data/nextcloud/config/config.php"
+#   when: persistent != 'true'
+
+# - name: Force https nextcloud configuration
+#   become: yes
+#   lineinfile:
+#     path: "{{ nextcloud_install_path }}/cfg/config.php"
+#     regexp: "'overwriteprotocol' => .*"
+#     line: "  'overwriteprotocol' => 'https',"
+#     insertbefore: '^\);'
+#   when: nextcloud_https == true
+
+# - name: Force http nextcloud configuration
+#   become: yes
+#   lineinfile:
+#     path: "{{ nextcloud_install_path }}/data/nextcloud/config/config.php"
+#     regexp: "'overwriteprotocol' => .*"
+#     line: "  'overwriteprotocol' => 'http',"
+#     insertbefore: '^\);'
+#   when: nextcloud_https == false
+
+# - name: Set proxy in nextcloud config
+#   become: yes
+#   lineinfile:
+#     path: "{{ nextcloud_dir }}/data/nextcloud/config/config.php"
+#     regexp: "'trusted_proxies' =>"
+#     line: "  'trusted_proxies' => [ 'traefik' ],"
+#     insertbefore: '^\);'
+
+# - name: Enable external apps files external
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_dir }}"
+#     cmd: docker-compose exec -u www-data -T nextcloud php occ app:enable files_external
+
+# - name: Disable external apps ldap
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_dir }}"
+#     cmd: docker-compose exec -u www-data -T nextcloud php occ app:disable user_ldap
+ 
+# - name: Upload nextcloud ldap config
+#   become: yes
+#   template:
+#     src: nextcloud-ldap-config.json
+#     dest: "{{ nextcloud_dir }}/data/nextcloud/config/ldap.config.json"
+#     mode: '0644'
+#     owner: '33'
+
+# - name: Push nextcloud ldap config file
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_dir }}"
+#     cmd: docker cp -a {{ nextcloud_dir }}/data/nextcloud/config/ldap.config.json {{ nextcloud_container.stdout }}:/var/www/html/config/ldap.config.json
+#   when: persistent != 'true'
+
+# - name: Set nextcloud ldap config
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_dir }}"
+#     cmd: docker-compose exec -u www-data -T nextcloud php occ config:import config/ldap.config.json
+
+# - name: Set nextcloud config rights
+#   become: yes
+#   file:
+#     path: "{{ nextcloud_dir }}/data/nextcloud/config/config.php"
+#     owner: '33'
+#   when: persistent != 'true'
+
+# - name: Push nextcloud config file
+#   become: yes
+#   shell:
+#     chdir: "{{ nextcloud_dir }}"
+#     cmd: docker cp -a {{ nextcloud_dir }}/data/nextcloud/config/config.php {{ nextcloud_container.stdout }}:/var/www/html/config/config.php
+#   when: persistent != 'true'

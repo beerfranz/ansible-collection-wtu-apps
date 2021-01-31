@@ -16,6 +16,7 @@
         - "{{ cadvisor_install_path }}"
         - "{{ prometheus_install_path }}"
         - "{{ grafana_install_path }}"
+        - "{{ nextcloud_install_path }}"
 
   post_tasks:
     - name: Remove docker networks
@@ -23,3 +24,17 @@
       docker_network:
         name: "{{ test_docker_network }}"
         state: absent
+
+    - name: Remove directories
+      become: yes
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ fluent_bit_install_path }}"
+        - "{{ loki_install_path }}"
+        - "{{ traefik_install_path }}"
+        - "{{ cadvisor_install_path }}"
+        - "{{ prometheus_install_path }}"
+        - "{{ grafana_install_path }}"
+        - "{{ nextcloud_install_path }}"

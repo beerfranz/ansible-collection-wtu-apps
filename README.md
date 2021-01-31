@@ -27,3 +27,11 @@ Technical apps:
 All applications can be installed on diffent servers, except some applications that you should install on all servers:
 * fluent-bit: local log collector
 * cAdvisor: local docker metrics collector
+
+## Run tests
+
+Run local tests:
+
+```
+ansible-playbook -i tests/hosts tests/test.yml --limit local
+```

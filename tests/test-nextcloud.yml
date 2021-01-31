@@ -1,0 +1,34 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Wait for Nextcloud container is healthy
+      become: yes
+      shell:
+        chdir: "{{ nextcloud_install_path }}"
+        cmd: docker-compose ps nextcloud | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0
+
+    - name: Test Nextcloud web UI return HTTP code 401 Unauthorized
+      uri:
+        url: "http://{{ nextcloud_hostname }}/remote.php/dav/"
+        force_basic_auth: yes
+        status_code: 401
+
+    - name: Test Nextcloud web UI return HTTP code 401 when password is wrong
+      uri:
+        url: "http://{{ nextcloud_hostname }}/remote.php/dav/"
+        # force_basic_auth: yes
+        url_username: "{{nextcloud_admin_username }}"
+        url_password: thisIsAWrongPassword4Testing
+        status_code: 401
+
+    - name: Test Nextcloud web UI return HTTP code 200 when username/password is send
+      uri:
+        url: "http://{{ nextcloud_hostname }}/remote.php/dav/"
+        # force_basic_auth: yes
+        url_username: "{{ nextcloud_admin_username }}"
+        url_password: "{{ nextcloud_admin_password }}"

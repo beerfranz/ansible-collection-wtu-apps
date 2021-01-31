@@ -31,3 +31,12 @@ traefik_https: false
 traefik_https_le: false
 traefik_ui_username: ansible-test
 traefik_ui_password: ansible-test
+
+nextcloud_install_path: "{{ test_install_path }}/nextcloud"
+nextcloud_docker_network: "{{ test_docker_network }}"
+nextcloud_hostname: nextcloud.ansible-test
+nextcloud_https: false
+nextcloud_https_le: false
+nextcloud_ui_username: ansible-test
+nextcloud_ui_password: ansible-test
+nextcloud_postgres_password: ansible-test

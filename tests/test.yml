@@ -8,6 +8,7 @@
     - role: ../roles/cadvisor
     - role: ../roles/prometheus
     - role: ../roles/grafana
+    - role: ../roles/nextcloud
 
   pre_tasks:
     - name: Update /etc/hosts
@@ -20,6 +21,7 @@
         - "{{ traefik_hostname }}"
         - "{{ prometheus_hostname }}"
         - "{{ grafana_hostname }}"
+        - "{{ nextcloud_hostname }}"
 
     - name: Create docker networks
       become: yes
@@ -39,6 +41,7 @@
         - "{{ cadvisor_install_path }}"
         - "{{ prometheus_install_path }}"
         - "{{ grafana_install_path }}"
+        - "{{ nextcloud_install_path }}"
 
 - name: Test fluent-bit
   import_playbook: test-fluent-bit.yml
@@ -54,6 +57,9 @@
 
 - name: Test Grafana
   import_playbook: test-grafana.yml
+
+- name: Test Nextcloud
+  import_playbook: test-nextcloud.yml
 
 - name: Stop test
   import_playbook: test-end.yml

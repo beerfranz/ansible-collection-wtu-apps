@@ -1,0 +1,21 @@
+nextcloud_install_path: /appli/nextcloud
+
+nextcloud_docker_image_tag: 18.0.2-apache
+nextcloud_docker_network: wtu
+
+nextcloud_hostname: nextcloud.local
+
+nextcloud_https: true
+nextcloud_https_le: true
+
+nextcloud_postgres_password: ansible-test
+ 
+nextcloud_admin_username: ansible-test # only for the first installation of nextcloud
+nextcloud_admin_password: ansible-test # only for the first installation of nextcloud
+
+nextcloud_mail_domain: "{{ nextcloud_hostname }}"
+nextcloud_smtp_user:
+nextcloud_smtp_ssl:
+nextcloud_smtp_host:
+nextcloud_smtp_password:
+nextcloud_smtp_port:
