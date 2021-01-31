@@ -14,21 +14,27 @@
 
     - name: Test Nextcloud web UI return HTTP code 401 Unauthorized
       uri:
-        url: "http://{{ nextcloud_hostname }}/remote.php/dav/"
+        url: "http://{{ nextcloud_hostname }}/ocs/v1.php/cloud/users"
         force_basic_auth: yes
         status_code: 401
+        headers:
+          OCS-APIRequest: "true"
 
     - name: Test Nextcloud web UI return HTTP code 401 when password is wrong
       uri:
-        url: "http://{{ nextcloud_hostname }}/remote.php/dav/"
-        # force_basic_auth: yes
+        url: "http://{{ nextcloud_hostname }}/ocs/v1.php/cloud/users"
+        force_basic_auth: yes
         url_username: "{{nextcloud_admin_username }}"
         url_password: thisIsAWrongPassword4Testing
         status_code: 401
+        headers:
+          OCS-APIRequest: "true"
 
     - name: Test Nextcloud web UI return HTTP code 200 when username/password is send
       uri:
-        url: "http://{{ nextcloud_hostname }}/remote.php/dav/"
-        # force_basic_auth: yes
+        url: "http://{{ nextcloud_hostname }}/ocs/v1.php/cloud/users"
+        force_basic_auth: yes
         url_username: "{{ nextcloud_admin_username }}"
         url_password: "{{ nextcloud_admin_password }}"
+        headers:
+          OCS-APIRequest: "true"
