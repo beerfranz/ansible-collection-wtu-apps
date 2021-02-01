@@ -9,7 +9,7 @@
 - name: Set prometheus datasource in dashboard template {{ grafana_public_dashboard_name }}
   replace:
     path: "/tmp/{{ grafana_public_dashboard_name }}.json"
-    regexp: "\\${  {{- grafana_public_dashboard_datasource_name | default('DS_PROMETHEUS') -}} }"
+    regexp: "\\${% raw %}{{% endraw %}{{ grafana_public_dashboard_datasource_name | default('DS_PROMETHEUS') }}{% raw %}}{% endraw %}"
     replace: 'Prometheus'
 
 - name: Remove __input block in dashboard template {{ grafana_public_dashboard_name }}
