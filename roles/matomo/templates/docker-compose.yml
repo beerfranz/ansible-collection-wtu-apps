@@ -22,6 +22,11 @@ services:
     labels:
       - app=matomo-app
       - traefik.enable=true
+      - traefik.http.routers.matomo.middlewares=matomo-hook-js, matomo-hook-php
+      - traefik.http.middlewares.matomo-hook-js.replacepathregex.regex=nonono.js
+      - traefik.http.middlewares.matomo-hook-js.replacepathregex.replacement=matomo.js
+      - traefik.http.middlewares.matomo-hook-php.replacepathregex.regex=nonono.html
+      - traefik.http.middlewares.matomo-hook-php.replacepathregex.replacement=matomo.php
       - traefik.http.routers.matomo.rule=Host(`{{ matomo_hostname }}`)
 {% if matomo_https %}
       - traefik.http.routers.matomo-unsecure.rule=Host(`{{ matomo_hostname }}`)
