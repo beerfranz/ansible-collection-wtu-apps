@@ -37,7 +37,7 @@
       "id": 11,
       "options": {
         "showLabels": false,
-        "showTime": false,
+        "showTime": true,
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
@@ -118,6 +118,7 @@
     "from": "now-6h",
     "to": "now"
   },
+  "refresh": "5s",
   "timepicker": {},
   "timezone": "",
   "title": "Logs",
