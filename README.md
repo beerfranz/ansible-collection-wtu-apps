@@ -5,22 +5,14 @@ Compile all applications for Worship the Useless.
 Installed with docker-compose.
 
 Applications:
-* File sharing: Nextcloud
-* Web site
-* CRM
-* Supervision
-  * SuiteCRM
-
-Technical apps:
-* Security
-  * Traefik: Reverse proxy with TLS termination
-* Logs
-  * Fluentd: Log collector
-  * Loki: Log database
-* Metrics
-  * cAdvisor: Metrics collector for dockers
-  * Prometheus: Metrics database
-* Grafana: Web UI for logs & metrics
+* Traefik: Reverse proxy (TLS termination, forward trafik to other apps)
+* Nextcloud: Files sharing with web UI
+* Grafana: dashboard web UI for metrics & logs
+* Matomo: website statistics
+* Fluent-bit: log collector
+* Loki: log database
+* cAdvisor: metrics collector for dockers
+* Prometheus: metrics database
 
 ## Installation
 
