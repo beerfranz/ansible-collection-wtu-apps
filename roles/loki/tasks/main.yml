@@ -11,6 +11,7 @@
     src: "docker-compose.yml"
     dest: "{{ loki_install_path }}/"
     mode: '0644'
+    backup: yes
 
 - name: Create configuration directory in {{ loki_install_path }}
   become: true
@@ -31,3 +32,4 @@
     src: config.yaml
     dest: "{{ loki_install_path }}/cfg/"
     mode: '0644'
+    backup: yes

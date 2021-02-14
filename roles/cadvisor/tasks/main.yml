@@ -1,13 +1,16 @@
 ---
 - name: Create cAdvisor directory {{ cadvisor_install_path }}
-  become: true
+  become: yes
   file:
     path: "{{ cadvisor_install_path }}"
     state: directory
 
 - name: Install cAdvisor docker-compose in {{ cadvisor_install_path }}
-  become: true
+  become: yes
   template:
     src: "docker-compose.yml"
     dest: "{{ cadvisor_install_path }}/"
     mode: '0644'
+    backup: yes
+  notify:
+    - Restart cAdvisor

@@ -32,62 +32,62 @@
         name: "{{ test_docker_network }}"
 
   tasks:
-    - name: Run containers
-      become: yes
-      docker_compose:
-        project_src: "{{ item }}"
-        restarted: yes
-      loop:
-        - "{{ fluent_bit_install_path }}"
-        - "{{ loki_install_path }}"
-        - "{{ traefik_install_path }}"
-        - "{{ cadvisor_install_path }}"
-        - "{{ prometheus_install_path }}"
-        - "{{ grafana_install_path }}"
+    # - name: Run containers
+    #   become: yes
+    #   docker_compose:
+    #     project_src: "{{ item }}"
+    #     restarted: yes
+    #   loop:
+    #     - "{{ fluent_bit_install_path }}"
+    #     - "{{ loki_install_path }}"
+    #     - "{{ traefik_install_path }}"
+    #     - "{{ cadvisor_install_path }}"
+    #     - "{{ prometheus_install_path }}"
+    #     - "{{ grafana_install_path }}"
 
-    - name: Run Nextcloud DB
-      become: yes
-      docker_compose:
-        project_src: "{{ nextcloud_install_path }}"
-        services: [ 'nextcloud-db', 'nextcloud-redis' ]
+    # - name: Run Nextcloud DB
+    #   become: yes
+    #   docker_compose:
+    #     project_src: "{{ nextcloud_install_path }}"
+    #     services: [ 'nextcloud-db', 'nextcloud-redis' ]
 
-    - name: Wait for Nextcloud DB is healthy
-      become: yes
-      shell:
-        chdir: "{{ nextcloud_install_path }}"
-        cmd: docker-compose ps nextcloud-db | grep "(healthy)"
-      register: cmd_res
-      retries: 20
-      delay: 15
-      until: cmd_res.rc == 0
+    # - name: Wait for Nextcloud DB is healthy
+    #   become: yes
+    #   shell:
+    #     chdir: "{{ nextcloud_install_path }}"
+    #     cmd: docker-compose ps nextcloud-db | grep "(healthy)"
+    #   register: cmd_res
+    #   retries: 20
+    #   delay: 15
+    #   until: cmd_res.rc == 0
 
-    - name: Run Nextcloud
-      become: yes
-      docker_compose:
-        project_src: "{{ nextcloud_install_path }}"
-        services: [ 'nextcloud' ]
+    # - name: Run Nextcloud
+    #   become: yes
+    #   docker_compose:
+    #     project_src: "{{ nextcloud_install_path }}"
+    #     services: [ 'nextcloud' ]
 
-    - name: Run Matomo DB
-      become: yes
-      docker_compose:
-        project_src: "{{ matomo_install_path }}"
-        services: [ 'matomo-db' ]
+    # - name: Run Matomo DB
+    #   become: yes
+    #   docker_compose:
+    #     project_src: "{{ matomo_install_path }}"
+    #     services: [ 'matomo-db' ]
 
-    - name: Wait for Matomo DB is healthy
-      become: yes
-      shell:
-        chdir: "{{ matomo_install_path }}"
-        cmd: docker-compose ps matomo-db | grep "(healthy)"
-      register: cmd_res
-      retries: 20
-      delay: 15
-      until: cmd_res.rc == 0
+    # - name: Wait for Matomo DB is healthy
+    #   become: yes
+    #   shell:
+    #     chdir: "{{ matomo_install_path }}"
+    #     cmd: docker-compose ps matomo-db | grep "(healthy)"
+    #   register: cmd_res
+    #   retries: 20
+    #   delay: 15
+    #   until: cmd_res.rc == 0
 
-    - name: Run Matomo
-      become: yes
-      docker_compose:
-        project_src: "{{ matomo_install_path }}"
-        services: [ 'matomo' ]
+    # - name: Run Matomo
+    #   become: yes
+    #   docker_compose:
+    #     project_src: "{{ matomo_install_path }}"
+    #     services: [ 'matomo' ]
 
 - name: Test fluent-bit
   import_playbook: test-fluent-bit.yml
@@ -113,5 +113,5 @@
 - name: Test Matomo
   import_playbook: test-matomo.yml
 
-- name: Stop test
-  import_playbook: test-end.yml
+# - name: Stop test
+#   import_playbook: test-end.yml

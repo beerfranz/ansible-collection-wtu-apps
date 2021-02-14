@@ -11,6 +11,7 @@
     src: "docker-compose.yml"
     dest: "{{ prometheus_install_path }}/"
     mode: '0644'
+    backup: yes
 
 - name: Create Prometheus configuration directory in {{ prometheus_install_path }}
   become: yes
@@ -24,6 +25,7 @@
     src: prometheus.yml
     dest: "{{ prometheus_install_path }}/cfg/"
     mode: '0644'
+    backup: yes
 
 - name: Create Prometheus data directory in {{ prometheus_install_path }}
   become: yes

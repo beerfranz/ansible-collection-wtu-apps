@@ -14,11 +14,33 @@ Applications:
 * cAdvisor: metrics collector for dockers
 * Prometheus: metrics database
 
-## Installation
+## Usage
 
 All applications can be installed on diffent servers, except some applications that you should install on all servers:
 * fluent-bit: local log collector
 * cAdvisor: local docker metrics collector
+
+`ansible-galaxy collection install wtu.apps`
+
+Playbook example:
+```
+---
+- name: install cAdvisor, fluent-bit, traefik and nextcloud
+  hosts: all
+  tasks:
+    - name: install cadvisor
+      import_role:
+        name: wtu.apps.cadvisor
+    - name: install fluent-bit
+      import_role:
+        name: wtu.apps.fluent-bit
+    - name: install traefik
+      import_role:
+        name: wtu.apps.traefik
+    - name: install nextcloud
+      import_role:
+        name: wtu.apps.nextcloud
+```
 
 ## Run tests
 

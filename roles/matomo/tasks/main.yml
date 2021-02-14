@@ -17,3 +17,4 @@
     src: "docker-compose.yml"
     dest: "{{ matomo_install_path }}/"
     mode: '0644'
+    backup: yes

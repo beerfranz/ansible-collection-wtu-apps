@@ -19,3 +19,4 @@
     src: "docker-compose.yml"
     dest: "{{ grafana_install_path }}/"
     mode: '0644'
+    backup: yes
