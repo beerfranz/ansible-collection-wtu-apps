@@ -4,6 +4,7 @@
   file:
     path: "{{ nextcloud_install_path }}"
     state: directory
+  register: nextcloud_create_directory
 
 - name: Create Nextcloud config directory in {{ nextcloud_install_path }}
   become: yes
@@ -17,13 +18,52 @@
     path: "{{ nextcloud_install_path }}/data"
     state: directory
 
-- name: Install nextcloud docker-compose in {{ nextcloud_install_path }}
+- name: Install Nextcloud docker-compose in {{ nextcloud_install_path }}
   become: yes
   template:
     src: "docker-compose.yml"
     dest: "{{ nextcloud_install_path }}/"
     mode: '0644'
     backup: yes
+  register: nextcloud_docker_compose
+
+- name: Run Nextcloud database
+  when: nextcloud_docker_compose.changed
+  become: yes
+  docker_compose:
+    project_src: "{{ nextcloud_install_path }}"
+    services: [ 'nextcloud-db', 'nextcloud-redis' ]
+
+- name: Wait for Nextcloud DB is healthy
+  when: nextcloud_docker_compose.changed
+  become: yes
+  shell:
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: docker-compose ps nextcloud-db | grep "(healthy)"
+  register: cmd_res
+  retries: 20
+  delay: 15
+  until: cmd_res.rc == 0
+
+- name: Pause for 20 seconds before run Nextcloud
+  when: nextcloud_docker_compose.changed
+  pause:
+    seconds: 20
+
+- name: Restart nextcloud-app
+  when: nextcloud_docker_compose.changed and nextcloud_create_directory.changed | bool
+  become: yes
+  docker_compose:
+    project_src: "{{ nextcloud_install_path }}"
+    services: [ 'nextcloud' ]
+
+- name: Restart nextcloud-app
+  when: nextcloud_docker_compose.changed and (not nextcloud_create_directory.changed) | bool
+  become: yes
+  docker_compose:
+    project_src: "{{ nextcloud_install_path }}"
+    restarted: yes
+    services: [ 'nextcloud' ]
 
 # - name: Get nextcloud container ID
 #   become: yes

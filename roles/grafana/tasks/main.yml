@@ -20,3 +20,11 @@
     dest: "{{ grafana_install_path }}/"
     mode: '0644'
     backup: yes
+  register: grafana_docker_compose
+
+- name: Restart grafana
+  when: grafana_docker_compose.changed
+  become: yes
+  docker_compose:
+    project_src: "{{ grafana_install_path }}"
+    restarted: yes

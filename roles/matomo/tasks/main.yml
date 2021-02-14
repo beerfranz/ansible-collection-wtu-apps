@@ -18,3 +18,30 @@
     dest: "{{ matomo_install_path }}/"
     mode: '0644'
     backup: yes
+  register: matomo_docker_compose
+
+- name: Run Matomo database
+  when: matomo_docker_compose.changed
+  become: yes
+  docker_compose:
+    project_src: "{{ matomo_install_path }}"
+    services: [ 'matomo-db' ]
+
+- name: Wait for Matomo DB is healthy
+  when: matomo_docker_compose.changed
+  become: yes
+  shell:
+    chdir: "{{ matomo_install_path }}"
+    cmd: docker-compose ps matomo-db | grep "(healthy)"
+  register: cmd_res
+  retries: 20
+  delay: 15
+  until: cmd_res.rc == 0
+
+- name: Restart matomo-app
+  when: matomo_docker_compose.changed
+  become: yes
+  docker_compose:
+    project_src: "{{ matomo_install_path }}"
+    restarted: yes
+    services: [ 'matomo' ]

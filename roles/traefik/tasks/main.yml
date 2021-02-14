@@ -16,6 +16,7 @@
     name: "{{ traefik_ui_username }}"
     password: "{{ traefik_ui_password }}"
     mode: 0640
+  register: traefik_config
 
 - name: Install Traefik docker-compose in {{ traefik_install_path }}
   become: yes
@@ -24,3 +25,11 @@
     dest: "{{ traefik_install_path }}/"
     mode: '0644'
     backup: yes
+  register: traefik_docker_compose
+
+- name: Restart traefik
+  when: traefik_docker_compose.changed or traefik_config.changed | bool
+  become: yes
+  docker_compose:
+    project_src: "{{ traefik_install_path }}"
+    restarted: yes

@@ -12,5 +12,11 @@
     dest: "{{ cadvisor_install_path }}/"
     mode: '0644'
     backup: yes
-  notify:
-    - Restart cAdvisor
+  register: cadvisor_docker_compose
+
+- name: Restart cAdvisor
+  when: cadvisor_docker_compose.changed
+  become: yes
+  docker_compose:
+    project_src: "{{ cadvisor_install_path }}"
+    restarted: yes

@@ -1,5 +1,0 @@
----
-- name: Restart cAdvisor
-  become: yes
-  docker_compose:
-    project_src: "{{ cadvisor_install_path }}"

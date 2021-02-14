@@ -12,6 +12,7 @@
     dest: "{{ fluent_bit_install_path }}/"
     mode: '0644'
     backup: yes
+  register: fluent_bit_docker_compose
 
 - name: Create fluent bit configuration directory
   become: true
@@ -33,3 +34,11 @@
     - matomo-filters
     - outputs
     - parsers
+  register: fluent_bit_config
+  
+- name: Restart fluent-bit
+  when: fluent_bit_docker_compose.changed or fluent_bit_config.changed | bool
+  become: yes
+  docker_compose:
+    project_src: "{{ fluent_bit_install_path }}"
+    restarted: yes
