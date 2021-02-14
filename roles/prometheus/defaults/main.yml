@@ -1,0 +1,9 @@
+prometheus_install_path: /appli/prometheus
+
+prometheus_docker_image_tag: v2.16.0
+prometheus_docker_network: wtu
+
+prometheus_hostname: prometheus.local
+
+prometheus_https: true
+prometheus_https_le: true

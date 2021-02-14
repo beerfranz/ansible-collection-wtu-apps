@@ -1,0 +1,4 @@
+loki_install_path: /appli/loki
+
+loki_docker_image_tag: master-5847419
+loki_docker_network: wtu

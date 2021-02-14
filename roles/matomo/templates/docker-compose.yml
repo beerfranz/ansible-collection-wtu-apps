@@ -1,0 +1,67 @@
+version: "3"
+
+services:
+
+  matomo:
+    image: matomo:{{ matomo_docker_image_tag }}
+    environment:
+      - MATOMO_DATABASE_ADAPTER=mysql
+      - MATOMO_DATABASE_HOST=matomo-db
+      - MATOMO_DATABASE_USERNAME={{ matomo_db_username }}
+      - MATOMO_DATABASE_PASSWORD={{ matomo_db_password }}
+      - MATOMO_DATABASE_DBNAME={{ matomo_db_name }}
+    volumes:
+      - ./data/matomo:/var/www/html
+    depends_on:
+      - matomo-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+    restart: always
+    networks:
+      - {{ matomo_docker_network }}
+    labels:
+      - app=matomo-app
+      - traefik.enable=true
+      - traefik.http.routers.matomo.rule=Host(`{{ matomo_hostname }}`)
+{% if matomo_https %}
+      - traefik.http.routers.matomo-unsecure.rule=Host(`{{ matomo_hostname }}`)
+      - traefik.http.routers.matomo-unsecure.middlewares=force_https
+      - traefik.http.routers.matomo.tls=true
+{% if matomo_https_le %}
+      - traefik.http.routers.matomo.tls.certresolver=le
+{% endif %}
+{% endif %}
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.matomo-app.{{.ID}}"{% endraw %}
+
+  matomo-db:
+    image: mariadb:10.5.8-focal
+    networks:
+      - {{ matomo_docker_network }}
+    restart: always
+    environment:
+      - MYSQL_USER={{ matomo_db_username }}
+      - MYSQL_PASSWORD={{ matomo_db_password }}
+      - MYSQL_DATABASE={{ matomo_db_name }}
+      - MYSQL_ROOT_PASSWORD={{ matomo_db_root_password }}
+    volumes:
+      - ./data/db:/var/lib/mysql
+    command: --max_allowed_packet=64MB
+    healthcheck:
+      test: "/usr/bin/mysql -u {{ matomo_db_username }} -p{{ matomo_db_password }} {{ matomo_db_name }} -e \"SHOW DATABASES;\""
+    labels:
+      - app=matomo-db
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ matomo_docker_network }}:
+    external: true

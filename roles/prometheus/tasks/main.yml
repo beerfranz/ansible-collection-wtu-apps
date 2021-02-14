@@ -1,0 +1,45 @@
+---
+- name: Create Prometheus directory {{ prometheus_install_path }}
+  become: yes
+  file:
+    path: "{{ prometheus_install_path }}"
+    state: directory
+
+- name: Install Prometheus docker-compose in {{ prometheus_install_path }}
+  become: yes
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ prometheus_install_path }}/"
+    mode: '0644'
+    backup: yes
+  register: prometheus_docker_compose
+
+- name: Create Prometheus configuration directory in {{ prometheus_install_path }}
+  become: yes
+  file:
+    path: "{{ prometheus_install_path }}/cfg"
+    state: directory
+
+- name: Install Prometheus configuration file in {{ prometheus_install_path }}
+  become: yes
+  template:
+    src: prometheus.yml
+    dest: "{{ prometheus_install_path }}/cfg/"
+    mode: '0644'
+    backup: yes
+  register: prometheus_config
+
+- name: Create Prometheus data directory in {{ prometheus_install_path }}
+  become: yes
+  file:
+    path: "{{ prometheus_install_path }}/data"
+    state: directory
+    owner: nobody
+    group: nogroup
+
+- name: Restart prometheus
+  when: prometheus_docker_compose.changed or prometheus_config.changed | bool
+  become: yes
+  docker_compose:
+    project_src: "{{ prometheus_install_path }}"
+    restarted: yes

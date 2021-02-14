@@ -1,0 +1,5 @@
+[local]
+localhost ansible_connection=local
+
+[github]
+github_action ansible_connection=local ansible_python_interpreter=/opt/hostedtoolcache/Python/3.7.9/x64/bin/python

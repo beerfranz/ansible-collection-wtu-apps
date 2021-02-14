@@ -1,0 +1,6 @@
+fluent_bit_install_path: /appli/fluent-bit
+
+fluent_bit_docker_image_tag: master-5847419-amd64
+fluent_bit_docker_network: wtu
+
+fluent_bit_loki_url: http://loki:3100/loki/api/v1/push

@@ -1,0 +1,93 @@
+version: '3'
+
+services:
+  nextcloud:
+    image: nextcloud:{{ nextcloud_docker_image_tag }}
+    environment:
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD={{ nextcloud_postgres_password }}
+      - POSTGRES_HOST=nextcloud-db
+      - REDIS_HOST=nextcloud-redis
+      - MAIL_FROM_ADDRESS=nextcloud
+      - MAIL_DOMAIN={{ nextcloud_mail_domain }}
+      - SMTP_AUTHTYPE=LOGIN
+      - SMTP_NAME={{ nextcloud_smtp_user }}
+      - SMTP_SECURE={{ nextcloud_smtp_ssl }}
+      - SMTP_HOST={{ nextcloud_smtp_host }}
+      - SMTP_PASSWORD={{ nextcloud_smtp_password }}
+      - SMTP_PORT={{ nextcloud_smtp_port }}
+      - NEXTCLOUD_ADMIN_USER={{ nextcloud_admin_username }}
+      - NEXTCLOUD_ADMIN_PASSWORD={{ nextcloud_admin_password }}
+      - NEXTCLOUD_TRUSTED_DOMAINS={{ nextcloud_hostname }}
+      - OVERWRITEPROTOCOL={{ 'https' if nextcloud_https else 'http' }}
+      - APACHE_DISABLE_REWRITE_IP=1
+      - TRUSTED_PROXIES=172.16.0.0/12
+    healthcheck:
+      test: "curl -s http://localhost/status.php | grep -q '\"installed\":true'"
+    volumes:
+      - ./data/nextcloud:/var/www/html
+    restart: always
+    depends_on:
+      - nextcloud-db
+      - nextcloud-redis
+    networks:
+      - {{ nextcloud_docker_network }}
+    labels:
+      - app=nextcloud-app
+      - traefik.enable=true
+      - traefik.http.routers.nextcloud.rule=Host(`{{ nextcloud_hostname }}`)
+{% if nextcloud_https %}
+      - traefik.http.routers.nextcloud-unsecure.rule=Host(`{{ nextcloud_hostname }}`)
+      - traefik.http.routers.nextcloud-unsecure.middlewares=force_https
+      - traefik.http.routers.nextcloud.tls=true
+{% if nextcloud_https_le %}
+      - traefik.http.routers.nextcloud.tls.certresolver=le
+{% endif %}
+{% endif %}
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.nextcloud-app.{{.ID}}"{% endraw %}
+
+  nextcloud-db:
+    image: postgres:9.6.17-alpine
+    restart: always
+    volumes:
+      - ./data/nextcloud_postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD={{ nextcloud_postgres_password }}
+    networks:
+      - {{ nextcloud_docker_network }}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+    labels:
+      - app=nextcloud-db
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+  nextcloud-redis:
+    image: redis:5.0.7
+    restart: always
+    networks:
+      - {{ nextcloud_docker_network }}
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+    labels:
+      - app=nextcloud-redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ nextcloud_docker_network }}:
+    external: true

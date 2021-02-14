@@ -1,0 +1,44 @@
+---
+- name: Create fluent bit directory
+  become: true
+  file:
+    path: "{{ fluent_bit_install_path }}"
+    state: directory
+
+- name: Install fluent bit docker-compose
+  become: true
+  template:
+    src: docker-compose.yml
+    dest: "{{ fluent_bit_install_path }}/"
+    mode: '0644'
+    backup: yes
+  register: fluent_bit_docker_compose
+
+- name: Create fluent bit configuration directory
+  become: true
+  file:
+    path: "{{ fluent_bit_install_path }}/cfg"
+    state: directory
+
+- name: Install fluent bit configuration files
+  become: true
+  template:
+    src: "{{ item }}.conf"
+    dest: "{{ fluent_bit_install_path }}/cfg/"
+    mode: '0644'
+    backup: yes
+  with_items:
+    - fluent-bit
+    - traefik-filters
+    - nextcloud-filters
+    - matomo-filters
+    - outputs
+    - parsers
+  register: fluent_bit_config
+  
+- name: Restart fluent-bit
+  when: fluent_bit_docker_compose.changed or fluent_bit_config.changed | bool
+  become: yes
+  docker_compose:
+    project_src: "{{ fluent_bit_install_path }}"
+    restarted: yes

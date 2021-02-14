@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:{{ cadvisor_docker_image_tag }}
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - {{ cadvisor_docker_network }}
+    labels:
+      - app=cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg
+    healthcheck:
+      test: wget localhost:8080/healthz -q -O - > /dev/null 2>&1
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ cadvisor_docker_network }}:
+    external: true

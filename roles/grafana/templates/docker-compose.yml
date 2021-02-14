@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+
+  grafana:
+    image: grafana/grafana:{{ grafana_docker_image_tag }}
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_USER={{ grafana_ui_username }}
+      - GF_SECURITY_ADMIN_PASSWORD={{ grafana_ui_password }}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    networks:
+      - {{ grafana_docker_network }}
+    volumes:
+      - ./data/:/var/lib/grafana
+    labels:
+      - app=grafana
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`{{ grafana_hostname }}`)
+      # - traefik.http.routers.grafana.middlewares=admin
+{% if grafana_https %}
+      # Web HTTPS
+      - traefik.http.routers.grafana-unsecure.rule=Host(`{{ grafana_hostname }}`)
+      - traefik.http.routers.grafana-unsecure.middlewares=force_https
+      - traefik.http.routers.grafana.tls=true
+      # HTTPS - letsencrypt activation
+{% if grafana_https_le %}
+      - traefik.http.routers.grafana.tls.certresolver=le
+{% endif %}
+{% endif %}
+    healthcheck:
+      test: wget localhost:3000/api/health -q -O - > /dev/null 2>&1
+
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ grafana_docker_network }}:
+    external: true

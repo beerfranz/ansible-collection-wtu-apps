@@ -1,0 +1,60 @@
+---
+- name: Install components
+  hosts: all
+  roles:
+    - role: ../roles/fluent-bit
+    - role: ../roles/loki
+    - role: ../roles/traefik
+    - role: ../roles/nextcloud
+    - role: ../roles/matomo
+    - role: ../roles/cadvisor
+    - role: ../roles/prometheus
+    - role: ../roles/grafana
+
+  pre_tasks:
+    - name: Update /etc/hosts
+      become: yes
+      lineinfile:
+        path: /etc/hosts
+        regexp: "{{ item }}"
+        line: "127.0.0.1 {{ item }}"
+      with_items:
+        - "{{ traefik_hostname }}"
+        - "{{ prometheus_hostname }}"
+        - "{{ grafana_hostname }}"
+        - "{{ nextcloud_hostname }}"
+        - "{{ matomo_hostname }}"
+
+    - name: Create docker networks
+      become: yes
+      docker_network:
+        name: "{{ test_docker_network }}"
+
+  tasks:
+
+- name: Test fluent-bit
+  import_playbook: test-fluent-bit.yml
+
+- name: Test Loki
+  import_playbook: test-loki.yml
+
+- name: Test cAdvisor
+  import_playbook: test-cadvisor.yml
+
+- name: Test Prometheus
+  import_playbook: test-prometheus.yml
+
+- name: Test Grafana
+  import_playbook: test-grafana.yml
+
+- name: Test Traefik
+  import_playbook: test-traefik.yml
+
+- name: Test Matomo
+  import_playbook: test-matomo.yml
+
+- name: Test Nextcloud
+  import_playbook: test-nextcloud.yml
+
+- name: Stop test
+  import_playbook: test-end.yml

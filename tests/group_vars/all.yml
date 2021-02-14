@@ -1,0 +1,48 @@
+test_docker_network: ansible-test
+test_install_path: /ansible-test
+
+fluent_bit_install_path: "{{ test_install_path }}/fluent-bit"
+fluent_bit_docker_network: "{{ test_docker_network }}"
+
+loki_install_path: "{{ test_install_path }}/loki"
+loki_docker_network: "{{ test_docker_network }}"
+
+cadvisor_install_path: "{{ test_install_path }}/cadvisor"
+cadvisor_docker_network: "{{ test_docker_network }}"
+
+prometheus_install_path: "{{ test_install_path }}/prometheus"
+prometheus_docker_network: "{{ test_docker_network }}"
+prometheus_hostname: prometheus.ansible-test
+prometheus_https: false
+prometheus_https_le: false
+
+grafana_install_path: "{{ test_install_path }}/grafana"
+grafana_docker_network: "{{ test_docker_network }}"
+grafana_hostname: grafana.ansible-test
+grafana_https: false
+grafana_https_le: false
+grafana_ui_username: ansible-test
+grafana_ui_password: ansible-test
+
+traefik_install_path: "{{ test_install_path }}/traefik"
+traefik_docker_network: "{{ test_docker_network }}"
+traefik_hostname: traefik.ansible-test
+traefik_https: false
+traefik_https_le: false
+traefik_ui_username: ansible-test
+traefik_ui_password: ansible-test
+
+nextcloud_install_path: "{{ test_install_path }}/nextcloud"
+nextcloud_docker_network: "{{ test_docker_network }}"
+nextcloud_hostname: nextcloud.ansible-test
+nextcloud_https: false
+nextcloud_https_le: false
+nextcloud_admin_username: ansible
+nextcloud_admin_password: ansible
+nextcloud_postgres_password: ansible
+
+matomo_install_path: "{{ test_install_path }}/matomo"
+matomo_docker_network: "{{ test_docker_network }}"
+matomo_hostname: matomo.ansible-test
+matomo_https: false
+matomo_https_le: false

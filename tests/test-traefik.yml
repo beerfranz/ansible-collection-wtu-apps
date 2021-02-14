@@ -1,0 +1,24 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Wait for Traefik container is healthy
+      become: yes
+      shell:
+        chdir: "{{ traefik_install_path }}"
+        cmd: docker-compose ps traefik | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0
+
+    - name: Test traefik IHM return HTTP code 401 Unauthorized
+      uri:
+        url: "http://{{ traefik_hostname }}"
+        status_code: 401
+
+    - name: Test traefik IHM return HTTP code 200 when username/password is send
+      uri:
+        url: "http://{{ traefik_hostname }}"
+        url_username: "{{ traefik_ui_username }}"
+        url_password: "{{ traefik_ui_password }}"

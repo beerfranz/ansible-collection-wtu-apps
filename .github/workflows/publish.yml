@@ -1,0 +1,38 @@
+---
+name: On master branch, tag and then, publish to ansible-galaxy
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  publish:
+    runs-on: ubuntu-20.04
+    name: Publish to ansible galaxy
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Deploy the collection
+        uses: artis3n/ansible_galaxy_collection@v2
+        with:
+          api_key: ${{ secrets.GALAXY_API_KEY }}
+
+      # - name: Set up Python 3.7
+      #   uses: actions/setup-python@v1
+      #   with:
+      #     python-version: 3.7
+
+      # - name: Install dependencies
+      #   run: |
+      #     pip install ansible==2.9.2
+
+      # - name: Push to ansible galaxy
+      #   run: |
+      #     ansible-galaxy collection build 
+      #     ansible-galaxy collection publish \
+      #       --token ${{ secrets.GALAXY_API_KEY }} \
