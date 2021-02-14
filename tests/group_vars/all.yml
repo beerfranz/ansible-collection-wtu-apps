@@ -40,3 +40,9 @@ nextcloud_https_le: false
 nextcloud_admin_username: ansible
 nextcloud_admin_password: ansible
 nextcloud_postgres_password: ansible
+
+matomo_install_path: "{{ test_install_path }}/matomo"
+matomo_docker_network: "{{ test_docker_network }}"
+matomo_hostname: matomo.ansible-test
+matomo_https: false
+matomo_https_le: false

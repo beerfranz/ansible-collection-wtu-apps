@@ -1,0 +1,23 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Wait for Matomo container is healthy
+      become: yes
+      shell:
+        chdir: "{{ matomo_install_path }}"
+        cmd: docker-compose ps matomo | grep "(healthy)"
+      register: cmd_res
+      retries: 40
+      delay: 15
+      until: cmd_res.rc == 0
+
+    - name: Wait for Matomo Database container is healthy
+      become: yes
+      shell:
+        chdir: "{{ matomo_install_path }}"
+        cmd: docker-compose ps matomo-db | grep "(healthy)"
+      register: cmd_res
+      retries: 40
+      delay: 15
+      until: cmd_res.rc == 0

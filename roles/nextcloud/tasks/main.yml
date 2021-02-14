@@ -5,13 +5,13 @@
     path: "{{ nextcloud_install_path }}"
     state: directory
 
-- name: Create Nextcloud config diretory in {{ nextcloud_install_path }}
+- name: Create Nextcloud config directory in {{ nextcloud_install_path }}
   become: yes
   file:
     path: "{{ nextcloud_install_path }}/cfg"
     state: directory
 
-- name: Create Nextcloud data diretory in {{ nextcloud_install_path }}
+- name: Create Nextcloud data directory in {{ nextcloud_install_path }}
   become: yes
   file:
     path: "{{ nextcloud_install_path }}/data"

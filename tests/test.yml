@@ -9,6 +9,8 @@
     - role: ../roles/prometheus
     - role: ../roles/grafana
     - role: ../roles/nextcloud
+    - role: ../roles/matomo
+      tags: [ 'matomo', 'matomo-install' ]
 
   pre_tasks:
     - name: Update /etc/hosts
@@ -22,6 +24,7 @@
         - "{{ prometheus_hostname }}"
         - "{{ grafana_hostname }}"
         - "{{ nextcloud_hostname }}"
+        - "{{ matomo_hostname }}"
 
     - name: Create docker networks
       become: yes
@@ -64,6 +67,28 @@
         project_src: "{{ nextcloud_install_path }}"
         services: [ 'nextcloud' ]
 
+    - name: Run Matomo DB
+      become: yes
+      docker_compose:
+        project_src: "{{ matomo_install_path }}"
+        services: [ 'matomo-db' ]
+
+    - name: Wait for Matomo DB is healthy
+      become: yes
+      shell:
+        chdir: "{{ matomo_install_path }}"
+        cmd: docker-compose ps matomo-db | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0
+
+    - name: Run Matomo
+      become: yes
+      docker_compose:
+        project_src: "{{ matomo_install_path }}"
+        services: [ 'matomo' ]
+
 - name: Test fluent-bit
   import_playbook: test-fluent-bit.yml
 
@@ -84,6 +109,9 @@
 
 - name: Test Nextcloud
   import_playbook: test-nextcloud.yml
+
+- name: Test Matomo
+  import_playbook: test-matomo.yml
 
 - name: Stop test
   import_playbook: test-end.yml

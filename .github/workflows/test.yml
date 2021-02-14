@@ -4,9 +4,10 @@ name: Test playbook
 on:
   pull_request:
 
+
+
 jobs:
   test:
-
     runs-on: ubuntu-20.04
     name: Test playbook
 

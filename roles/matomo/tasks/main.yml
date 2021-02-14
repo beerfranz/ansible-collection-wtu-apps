@@ -1,0 +1,19 @@
+---
+- name: Create Matomo directory {{ matomo_install_path }}
+  become: yes
+  file:
+    path: "{{ matomo_install_path }}"
+    state: directory
+
+- name: Create Matomo data directory in {{ matomo_install_path }}
+  become: yes
+  file:
+    path: "{{ matomo_install_path }}/data"
+    state: directory
+
+- name: Install Matomo docker-compose in {{ matomo_install_path }}
+  become: yes
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ matomo_install_path }}/"
+    mode: '0644'

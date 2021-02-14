@@ -17,6 +17,7 @@
         - "{{ prometheus_install_path }}"
         - "{{ grafana_install_path }}"
         - "{{ nextcloud_install_path }}"
+        - "{{ matomo_install_path }}"
 
   post_tasks:
     - name: Remove docker networks
@@ -38,3 +39,4 @@
         - "{{ prometheus_install_path }}"
         - "{{ grafana_install_path }}"
         - "{{ nextcloud_install_path }}"
+        - "{{ matomo_install_path }}"

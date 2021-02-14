@@ -18,16 +18,16 @@
     path: "{{ fluent_bit_install_path }}/cfg"
     state: directory
 
-- name: Install fluent bit configuration file
+- name: Install fluent bit configuration files
   become: true
   template:
-    src: fluent-bit.conf
+    src: "{{ item }}.conf"
     dest: "{{ fluent_bit_install_path }}/cfg/"
     mode: '0644'
-
-- name: Install fluent bit parsers configuration file
-  become: true
-  template:
-    src: parsers.conf
-    dest: "{{ fluent_bit_install_path }}/cfg/"
-    mode: '0644'
+  with_items:
+    - fluent-bit
+    - traefik-filters
+    - nextcloud-filters
+    - matomo-filters
+    - outputs
+    - parsers

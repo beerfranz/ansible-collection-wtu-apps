@@ -1,0 +1,14 @@
+matomo_install_path: /appli/matomo
+
+matomo_docker_image_tag: 4.1.1-apache
+matomo_docker_network: wtu
+
+matomo_hostname: matomo.local
+
+matomo_https: true
+matomo_https_le: true
+
+matomo_db_username: ansible-test-db # only for the first installation of matomo
+matomo_db_password: ansible-test-db # only for the first installation of matomo
+matomo_db_name: matomo
+matomo_db_root_password: ansible-test-root
