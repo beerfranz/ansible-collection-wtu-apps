@@ -2,7 +2,7 @@
 - name: Install components
   hosts: all
   roles:
-    - role: ../roles/fluent-bit
+    - role: ../roles/fluent_bit
     - role: ../roles/loki
     - role: ../roles/traefik
     - role: ../roles/nextcloud

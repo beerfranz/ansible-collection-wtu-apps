@@ -1,4 +1,4 @@
-# Ansible Collection - wtu.apps
+# Ansible Collection - beerfranz.wtu_apps
 
 Compile all applications for Worship the Useless.
 
@@ -20,7 +20,7 @@ All applications can be installed on diffent servers, except some applications t
 * fluent-bit: local log collector
 * cAdvisor: local docker metrics collector
 
-`ansible-galaxy collection install wtu.apps`
+`ansible-galaxy collection install beerfranz.wtu_apps`
 
 Playbook example:
 ```
@@ -30,16 +30,16 @@ Playbook example:
   tasks:
     - name: install cadvisor
       import_role:
-        name: wtu.apps.cadvisor
+        name: beerfranz.wtu_apps.cadvisor
     - name: install fluent-bit
       import_role:
-        name: wtu.apps.fluent-bit
+        name: beerfranz.wtu_apps.fluent_bit
     - name: install traefik
       import_role:
-        name: wtu.apps.traefik
+        name: beerfranz.wtu_apps.traefik
     - name: install nextcloud
       import_role:
-        name: wtu.apps.nextcloud
+        name: beerfranz.wtu_apps.nextcloud
 ```
 
 ## Run tests

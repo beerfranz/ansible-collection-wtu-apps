@@ -35,4 +35,4 @@ jobs:
       #   run: |
       #     ansible-galaxy collection build 
       #     ansible-galaxy collection publish \
-      #       --token ${{ secrets.GALAXY_API_KEY }} \
+      #       --api-key ${{ secrets.GALAXY_API_KEY }} \
