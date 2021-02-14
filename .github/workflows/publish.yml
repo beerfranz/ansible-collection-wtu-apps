@@ -2,9 +2,6 @@
 name: On master branch, tag and then, publish to ansible-galaxy
 
 on:
-  push:
-    branches:
-      - feat/ansible-galaxy
   release:
     types:
       - published
@@ -19,12 +16,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
-
-      # - name: Deploy the collection
-      #   uses: artis3n/ansible_galaxy_collection@v2
-      #   with:
-      #     api_key: ${{ secrets.GALAXY_API_KEY }}
-
 
       - name: Set up Python 3.7
         uses: actions/setup-python@v1
