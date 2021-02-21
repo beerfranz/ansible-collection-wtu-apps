@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Wait for Prometheus Node Exporter container is healthy
+      become: yes
+      shell:
+        chdir: "{{ prometheus_node_exporter_install_path }}"
+        cmd: docker-compose ps node-exporter | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0

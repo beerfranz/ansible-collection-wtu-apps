@@ -22,3 +22,12 @@
         url: "http://{{ prometheus_hostname }}"
         url_username: "{{ traefik_ui_username }}"
         url_password: "{{ traefik_ui_password }}"
+
+    - name: Test Prometheus targets are all reachable
+      uri:
+        url: "http://{{ prometheus_hostname }}/api/v1/targets"
+        url_username: "{{ traefik_ui_username }}"
+        url_password: "{{ traefik_ui_password }}"
+        return_content: yes
+      register: uri_output
+      failed_when: uri_output.json.data | json_query('activeTargets[?health==\'down\'].labels')

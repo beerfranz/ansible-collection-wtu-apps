@@ -12,6 +12,7 @@ Applications:
 * Fluent-bit: log collector
 * Loki: log database
 * cAdvisor: metrics collector for dockers
+* Prometheus Node Exporter: metrics collector for server
 * Prometheus: metrics database
 
 ## Usage
@@ -19,6 +20,7 @@ Applications:
 All applications can be installed on diffent servers, except some applications that you should install on all servers:
 * fluent-bit: local log collector
 * cAdvisor: local docker metrics collector
+* Prometheus Node Exporter: local system metrics collector
 
 `ansible-galaxy collection install beerfranz.wtu_apps`
 

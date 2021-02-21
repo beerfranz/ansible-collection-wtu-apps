@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  node-exporter:
+    image: prom/node-exporter:{{ prometheus_node_exporter_docker_image_tag }}
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    labels:
+      - app=prometheus-node-exporter
+    command: 
+      - '--path.procfs=/host/proc' 
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+      - --no-collector.powersupplyclass
+    networks:
+      - {{ prometheus_node_exporter_docker_network }}
+    healthcheck:
+      test: wget localhost:9100/metrics -q -O - > /dev/null 2>&1
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        labels: app
+        tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+
+networks:
+  {{ prometheus_node_exporter_docker_network }}:
+    external: true

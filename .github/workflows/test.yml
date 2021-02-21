@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ansible==2.9.2 requests docker docker-compose
+          pip install ansible==2.9.2 requests docker docker-compose jmespath
 
       - name: Run test
         run: |

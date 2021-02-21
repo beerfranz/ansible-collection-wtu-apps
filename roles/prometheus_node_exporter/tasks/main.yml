@@ -1,0 +1,22 @@
+---
+- name: Create Prometheus Node Exporter directory {{ prometheus_node_exporter_install_path }}
+  become: yes
+  file:
+    path: "{{ prometheus_install_path }}"
+    state: directory
+
+- name: Install Prometheus Node Exporter docker-compose in {{ prometheus_node_exporter_install_path }}
+  become: yes
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ prometheus_node_exporter_install_path }}/"
+    mode: '0644'
+    backup: yes
+  register: prometheus_node_exporter_docker_compose
+
+- name: Restart Prometheus Node Exporter
+  when: prometheus_node_exporter_docker_compose.changed
+  become: yes
+  docker_compose:
+    project_src: "{{ prometheus_node_exporter_install_path }}"
+    restarted: yes
