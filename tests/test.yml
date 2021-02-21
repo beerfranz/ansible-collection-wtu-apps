@@ -9,11 +9,8 @@
     - role: ../roles/matomo
     - role: ../roles/cadvisor
     - role: ../roles/prometheus_node_exporter
-      tags: [ 'prom' ]
     - role: ../roles/prometheus
-      tags: [ 'prom' ]
     - role: ../roles/grafana
-      tags: [ 'prom' ]
 
   pre_tasks:
     - name: Update /etc/hosts
@@ -63,5 +60,5 @@
 - name: Test Nextcloud
   import_playbook: test-nextcloud.yml
 
-# - name: Stop test
-#   import_playbook: test-end.yml
+- name: Stop test
+  import_playbook: test-end.yml

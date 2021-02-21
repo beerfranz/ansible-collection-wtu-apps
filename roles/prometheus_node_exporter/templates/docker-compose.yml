@@ -19,7 +19,7 @@ services:
     networks:
       - {{ prometheus_node_exporter_docker_network }}
     healthcheck:
-      test: wget localhost:9090/-/healthy -q -O - > /dev/null 2>&1
+      test: wget localhost:9100/metrics -q -O - > /dev/null 2>&1
     logging:
       driver: fluentd
       options:

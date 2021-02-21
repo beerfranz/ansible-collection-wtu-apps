@@ -25,12 +25,9 @@
 
     - name: Test Prometheus targets are all reachable
       uri:
-        url: "http://{{ prometheus_hostname }}"
+        url: "http://{{ prometheus_hostname }}/api/v1/targets"
         url_username: "{{ traefik_ui_username }}"
         url_password: "{{ traefik_ui_password }}"
-      # curl -s localhost:9090/api/v1/targets | grep '"health":"down"'
+        return_content: yes
       register: uri_output
-      # failed_when: uri_output.status not in [200]
-
-    - debug:
-        message: uri_output
+      failed_when: uri_output.json.data | json_query('activeTargets[?health==\'down\'].labels')
