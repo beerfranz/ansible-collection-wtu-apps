@@ -10,6 +10,9 @@ loki_docker_network: "{{ test_docker_network }}"
 cadvisor_install_path: "{{ test_install_path }}/cadvisor"
 cadvisor_docker_network: "{{ test_docker_network }}"
 
+prometheus_node_exporter_install_path: "{{ test_install_path }}/prometheus_node_exporter"
+prometheus_node_exporter_docker_network: "{{ test_docker_network }}"
+
 prometheus_install_path: "{{ test_install_path }}/prometheus"
 prometheus_docker_network: "{{ test_docker_network }}"
 prometheus_hostname: prometheus.ansible-test

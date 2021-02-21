@@ -8,6 +8,7 @@
     - role: ../roles/nextcloud
     - role: ../roles/matomo
     - role: ../roles/cadvisor
+    - role: ../roles/prometheus_node_exporter
     - role: ../roles/prometheus
     - role: ../roles/grafana
 
@@ -40,6 +41,9 @@
 
 - name: Test cAdvisor
   import_playbook: test-cadvisor.yml
+
+- name: Test Prometheus Node Exporter
+  import_playbook: test-prometheus-node-exporter.yml
 
 - name: Test Prometheus
   import_playbook: test-prometheus.yml

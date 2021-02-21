@@ -20,14 +20,4 @@ rule_files:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'prometheus'
-    static_configs:
-    - targets: ['localhost:9090']
-
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets: ['cadvisor:8080']
-
-  - job_name: 'traefik'
-    static_configs:
-      - targets: ['traefik:8080']
+{{ prometheus_scrape_configs | to_nice_yaml(indent=2) }}
