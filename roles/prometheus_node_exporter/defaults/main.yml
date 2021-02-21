@@ -1,0 +1,4 @@
+prometheus_node_exporter_install_path: /appli/prometheus_node_exporter
+
+prometheus_node_exporter_docker_image_tag: v1.0.1
+prometheus_node_exporter_docker_network: wtu
