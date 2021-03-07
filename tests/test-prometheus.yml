@@ -31,3 +31,6 @@
         return_content: yes
       register: uri_output
       failed_when: uri_output.json.data | json_query('activeTargets[?health==\'down\'].labels')
+      retries: 5
+      delay: 15
+      until: uri_output.json.data | json_query('activeTargets[?health==\'down\'].labels')
