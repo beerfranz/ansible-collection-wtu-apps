@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Publish to ansible galaxy
 
     steps:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ansible==2.9.2
+          pip install ansible
 
       - name: Push to ansible galaxy
         run: |
