@@ -4,14 +4,25 @@ nextcloud_docker_image_tag: 18.0.2-apache
 nextcloud_docker_network: wtu
 
 nextcloud_hostname: nextcloud.local
+nextcloud_service_name: nextcloud
 
 nextcloud_https: true
 nextcloud_https_le: true
 
+nextcloud_postgres_enabled: yes
+nextcloud_postgres_embedded: yes
+nextcloud_postgres_service_name: "{{ nextcloud_service_name }}-db"
+nextcloud_postgres_hostname: "{{ nextcloud_postgres_service_name }}"
+nextcloud_postgres_username: postgres
 nextcloud_postgres_password: ansiblePwd
+nextcloud_postgres_database: nextcloud
  
 nextcloud_admin_username: ansible       # only for the first installation of nextcloud - mustn't container "-"
 nextcloud_admin_password: ansible       # only for the first installation of nextcloud - mustn't container "-"
+nextcloud_admin_email: ''
+
+nextcloud_groups:
+  - admin
 
 nextcloud_mail_domain: "{{ nextcloud_hostname }}"
 nextcloud_smtp_user:
@@ -19,3 +30,53 @@ nextcloud_smtp_ssl:
 nextcloud_smtp_host:
 nextcloud_smtp_password:
 nextcloud_smtp_port:
+
+nextcloud_redis_enabled: yes
+nextcloud_redis_embedded: yes
+nextcloud_redis_service_name: "{{ nextcloud_service_name }}-redis"
+nextcloud_redis_hostname: "{{ nextcloud_redis_service_name }}"
+
+nextcloud_logging_fluentd_enabled: yes
+
+nextcloud_aws_access_key:
+nextcloud_aws_secret_key:
+
+nextcloud_objectstore_s3_enabled: no
+nextcloud_objectstore_s3_bucket: nextcloud
+nextcloud_objectstore_s3_key: "{{ nextcloud_aws_access_key }}"
+nextcloud_objectstore_s3_secret: "{{ nextcloud_aws_secret_key }}"
+nextcloud_objectstore_s3_port: 443
+nextcloud_objectstore_s3_ssl: "true"
+nextcloud_objectstore_s3_region: "eu-west-3"
+nextcloud_objectstore_s3_host: "{{ nextcloud_objectstore_s3_bucket }}.{{ nextcloud_objectstore_s3_region }}.amazonaws.com"
+nextcloud_objectstore_s3_usepath_style: "false"
+nextcloud_objectstore_s3_legacyauth: "false"
+nextcloud_objectstore_s3_object_prefix: primary-storage/
+nextcloud_objectstore_s3_autocreate: "false"
+
+nextcloud_external_storages: []
+
+nextcloud_install_apps:
+  - user_saml
+  - sociallogin
+
+nextcloud_enable_apps: 
+  - files_external
+
+nextcloud_disable_apps:
+  - circles
+  - contactsinteraction
+  - federation
+  - weather_status
+
+nextcloud_sso_oidc_enabled: no
+nextcloud_sso_saml_enabled: no
+nextcloud_sso_saml_url:
+nextcloud_sso_saml_logout_url: 
+nextcloud_sso_saml_fingerprint:
+nextcloud_sso_saml_name: 
+nextcloud_sso_saml_allow_multiple_user_back_ends: 0
+nextcloud_sso_saml_use_saml_auth_for_desktop: 1
+nextcloud_sso_saml_require_provisioned_account: 0
+
+nextcloud_occ_bin: "docker compose exec -u www-data {{ nextcloud_service_name }} php occ"

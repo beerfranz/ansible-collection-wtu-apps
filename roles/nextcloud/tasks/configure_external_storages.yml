@@ -1,0 +1,67 @@
+---
+- name: List external storages
+  ansible.builtin.shell:
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: "{{ nextcloud_occ_bin }} --output=json files_external:list"
+  register: nc_external_storages_output
+  check_mode: no
+  changed_when: no
+
+- set_fact:
+    nc_storages: "{{ nc_external_storages_output.stdout | from_json }}"
+
+- set_fact:
+    nc_storages_mount_ids: "{{ nc_storages | map(attribute='mount_id') }}"
+    nextcloud_external_storages_mount_ids: "{{ nextcloud_external_storages | map(attribute='mount_id') }}"
+
+- name: Create external storage
+  with_items: "{{ nextcloud_external_storages }}"
+  when: item.mount_id not in nc_storages_mount_ids
+  ansible.builtin.shell:
+    executable: /bin/bash
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: "{{ nextcloud_occ_bin }} files_external:create {{ item.mount_point }} {{ item.storage }} {{ item.authentication_type }}"
+
+- name: Set external storage options
+  with_items: "{{ nextcloud_external_storages }}"
+  ansible.builtin.shell:
+    executable: /bin/bash
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: |
+      {{ nextcloud_occ_bin }} files_external:option {{ item.mount_id }} encrypt {{ item.options.encrypt | default('false') }} && \
+      {{ nextcloud_occ_bin }} files_external:option {{ item.mount_id }} previews {{ item.options.previews | default('false') }} && \
+      {{ nextcloud_occ_bin }} files_external:option {{ item.mount_id }} enable_sharing {{ item.options.enable_sharing | default('false') }} && \
+      {{ nextcloud_occ_bin }} files_external:option {{ item.mount_id }} filesystem_check_changes {{ item.options.filesystem_check_changes | default('0') }} && \
+      {{ nextcloud_occ_bin }} files_external:option {{ item.mount_id }} encoding_compatibility {{ item.options.encoding_compatibility | default('false') }} && \
+      {{ nextcloud_occ_bin }} files_external:option {{ item.mount_id }} readonly {{ item.options.readonly | default('false') }}
+
+- name: Set external storage config
+  with_items: "{{ nextcloud_external_storages }}"
+  ansible.builtin.shell:
+    executable: /bin/bash
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: |
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} bucket {{ item.configuration.bucket | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} hostname {{ item.configuration.hostname | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} port {{ item.configuration.port | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} region {{ item.configuration.region | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} storageClass {{ item.configuration.storageClass | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} use_ssl {{ item.configuration.use_ssl | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} use_path_style {{ item.configuration.use_path_style | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} key {{ item.configuration.key | default('') }} && \
+      {{ nextcloud_occ_bin }} files_external:config {{ item.mount_id }} secret {{ item.configuration.secret | default('') }}
+      
+- name: Delete external storage
+  with_items: "{{ nc_storages }}"
+  when: item.mount_id not in nextcloud_external_storages_mount_ids
+  ansible.builtin.shell:
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: "{{ nextcloud_occ_bin }} files_external:delete -y {{ item.mount_id }}"
+
+# - name: Check external storage
+#   with_items: "{{ nextcloud_external_storages }}"
+#   ansible.builtin.shell:
+#     executable: /bin/bash
+#     chdir: "{{ nextcloud_install_path }}"
+#     cmd: "{{ nextcloud_occ_bin }} --output=json files_external:verify {{ item.mount_id }}"
+#   register: nc_external_storages_verify_output

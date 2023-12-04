@@ -1,0 +1,27 @@
+---
+- name: List groups
+  ansible.builtin.shell:
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: "{{ nextcloud_occ_bin }} group:list --output=json"
+  register: nc_groups_output
+  check_mode: no
+  changed_when: no
+
+- set_fact:
+    nc_groups_dict: "{{ nc_groups_output.stdout | from_json }}"
+
+- set_fact:
+    nc_groups: "{{ nc_groups_dict.keys() | list }}"
+
+- name: Add groups
+  with_items: "{{ nextcloud_groups | difference(nc_groups) }}"
+  ansible.builtin.shell:
+    executable: /bin/bash
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: "{{ nextcloud_occ_bin }} group:add {{ item }}"
+
+- name: Delete groups
+  with_items: "{{ nc_groups | difference(nextcloud_groups) }}"
+  ansible.builtin.shell:
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: "{{ nextcloud_occ_bin }} group:delete {{ item }}"

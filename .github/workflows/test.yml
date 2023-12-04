@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Test playbook
 
     steps:
@@ -17,14 +17,14 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Set up Python 3.7
+      - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
-          python-version: 3.7
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
-          pip install ansible==2.9.2 requests docker docker-compose jmespath
+          pip install ansible requests docker docker-compose jmespath
 
       - name: Run test
         run: |

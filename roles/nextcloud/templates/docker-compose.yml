@@ -1,14 +1,16 @@
 version: '3'
 
 services:
-  nextcloud:
+  {{ nextcloud_service_name }}: &_nextcloud
     image: nextcloud:{{ nextcloud_docker_image_tag }}
     environment:
-      - POSTGRES_DB=nextcloud
-      - POSTGRES_USER=postgres
+      - POSTGRES_DB={{ nextcloud_postgres_database }}
+      - POSTGRES_USER={{ nextcloud_postgres_username }}
       - POSTGRES_PASSWORD={{ nextcloud_postgres_password }}
-      - POSTGRES_HOST=nextcloud-db
-      - REDIS_HOST=nextcloud-redis
+      - POSTGRES_HOST={{ nextcloud_postgres_hostname }}
+{% if nextcloud_redis_enabled %}
+      - REDIS_HOST={{ nextcloud_redis_hostname }}
+{% endif %}
       - MAIL_FROM_ADDRESS=nextcloud
       - MAIL_DOMAIN={{ nextcloud_mail_domain }}
       - SMTP_AUTHTYPE=LOGIN
@@ -23,14 +25,33 @@ services:
       - OVERWRITEPROTOCOL={{ 'https' if nextcloud_https else 'http' }}
       - APACHE_DISABLE_REWRITE_IP=1
       - TRUSTED_PROXIES=172.16.0.0/12
+{% if nextcloud_objectstore_s3_enabled %}
+      - OBJECTSTORE_S3_HOST={{ nextcloud_objectstore_s3_host }}
+      - OBJECTSTORE_S3_BUCKET={{ nextcloud_objectstore_s3_bucket }}
+      - OBJECTSTORE_S3_KEY={{ nextcloud_objectstore_s3_key }}
+      - OBJECTSTORE_S3_SECRET={{ nextcloud_objectstore_s3_secret }}
+      - OBJECTSTORE_S3_PORT={{ nextcloud_objectstore_s3_port }}
+      - OBJECTSTORE_S3_SSL={{ nextcloud_objectstore_s3_ssl }}
+      - OBJECTSTORE_S3_REGION={{ nextcloud_objectstore_s3_region }}
+      - OBJECTSTORE_S3_USEPATH_STYLE={{ nextcloud_objectstore_s3_usepath_style }}
+      - OBJECTSTORE_S3_LEGACYAUTH={{ nextcloud_objectstore_s3_legacyauth }}
+      - OBJECTSTORE_S3_OBJECT_PREFIX={{ nextcloud_objectstore_s3_object_prefix }}
+      - OBJECTSTORE_S3_AUTOCREATE={{ nextcloud_objectstore_s3_autocreate }}
+{% endif %}
     healthcheck:
       test: "curl -s http://localhost/status.php | grep -q '\"installed\":true'"
     volumes:
       - ./data/nextcloud:/var/www/html
     restart: always
+{% if nextcloud_postgres_embedded or nextcloud_redis_embedded %}
     depends_on:
-      - nextcloud-db
-      - nextcloud-redis
+{% if nextcloud_postgres_embedded %}
+      - {{ nextcloud_postgres_service_name }}
+{% endif %}
+{% if nextcloud_redis_embedded %}
+      - {{ nextcloud_redis_service_name }}
+{% endif %}
+{% endif %}
     networks:
       - {{ nextcloud_docker_network }}
     labels:
@@ -45,14 +66,25 @@ services:
       - traefik.http.routers.nextcloud.tls.certresolver=le
 {% endif %}
 {% endif %}
+{% if nextcloud_logging_fluentd_enabled %}
     logging:
       driver: fluentd
       options:
         fluentd-address: localhost:24224
         labels: app
         tag: {% raw %}"docker.nextcloud-app.{{.ID}}"{% endraw %}
+{% endif %}
 
-  nextcloud-db:
+  {{ nextcloud_service_name }}-cron:
+    <<: *_nextcloud
+    user: www-data
+    entrypoint: "/bin/bash -c 'while [ true ]; do php -f /var/www/html/cron.php && touch /tmp/health; sleep 300; done'"
+    healthcheck:
+      test: "cat /tmp/health"
+    labels: {}
+
+{% if nextcloud_postgres_embedded %}
+  {{ nextcloud_postgres_service_name }}:
     image: postgres:9.6.17-alpine
     restart: always
     volumes:
@@ -65,14 +97,19 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
     labels:
       - app=nextcloud-db
+{% if nextcloud_logging_fluentd_enabled %}
     logging:
       driver: fluentd
       options:
         fluentd-address: localhost:24224
         labels: app
         tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+{% endif %}
 
-  nextcloud-redis:
+{% endif %}
+
+{% if nextcloud_redis_embedded %}
+  {{ nextcloud_redis_service_name }}:
     image: redis:5.0.7
     restart: always
     networks:
@@ -81,12 +118,15 @@ services:
       test: ["CMD", "redis-cli","ping"]
     labels:
       - app=nextcloud-redis
+{% if nextcloud_logging_fluentd_enabled %}
     logging:
       driver: fluentd
       options:
         fluentd-address: localhost:24224
         labels: app
         tag: {% raw %}"docker.default.{{.ID}}"{% endraw %}
+{% endif %}
+{% endif %}
 
 networks:
   {{ nextcloud_docker_network }}:
