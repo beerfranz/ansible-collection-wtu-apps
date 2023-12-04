@@ -26,16 +26,17 @@
     mode: '0644'
     backup: yes
   register: nextcloud_docker_compose
+  notify: restart nextcloud
 
 - name: Run Nextcloud database
-  when: nextcloud_docker_compose.changed
+  when: nextcloud_docker_compose.changed and nextcloud_postgres_embedded
   become: yes
   docker_compose:
     project_src: "{{ nextcloud_install_path }}"
     services: [ 'nextcloud-db', 'nextcloud-redis' ]
 
 - name: Wait for Nextcloud DB is healthy
-  when: nextcloud_docker_compose.changed
+  when: nextcloud_docker_compose.changed and nextcloud_postgres_embedded
   become: yes
   shell:
     chdir: "{{ nextcloud_install_path }}"
@@ -46,127 +47,16 @@
   until: cmd_res.rc == 0
 
 - name: Pause for 20 seconds before run Nextcloud
-  when: nextcloud_docker_compose.changed
+  when: nextcloud_docker_compose.changed and nextcloud_postgres_embedded
   pause:
     seconds: 20
 
-- name: Restart nextcloud-app
-  when: nextcloud_docker_compose.changed and nextcloud_create_directory.changed | bool
-  become: yes
-  docker_compose:
-    project_src: "{{ nextcloud_install_path }}"
-    services: [ 'nextcloud' ]
+- name: Flush handlers
+  meta: flush_handlers
 
-- name: Restart nextcloud-app
-  when: nextcloud_docker_compose.changed and (not nextcloud_create_directory.changed) | bool
-  become: yes
-  docker_compose:
-    project_src: "{{ nextcloud_install_path }}"
-    restarted: yes
-    services: [ 'nextcloud' ]
-
-# - name: Get nextcloud container ID
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_dir }}"
-#     cmd: docker-compose ps -q nextcloud | head -1
-#   when: persistent != 'true'
-#   register: nextcloud_container
-
-# - name: Wait for nextcloud container is healthy
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_dir }}"
-#     cmd: docker-compose ps nextcloud | grep "(healthy)"
-#   register: cmd_res
-#   retries: 20
-#   delay: 15
-#   until: cmd_res.rc == 0
-
-# - name: Set admin email
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_install_path }}"
-#     cmd: docker-compose exec -u www-data -T nextcloud php occ user:setting {{ admin_user }} settings email {{ admin_mail }}
-
-
-
-# - name: Get nextcloud config file
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_install_path }}"
-#     cmd: "docker cp -a {{ nextcloud_container.stdout }}:/var/www/html/config/config.php {{ nextcloud_install_path }}/data/nextcloud/config/config.php"
-#   when: persistent != 'true'
-
-# - name: Force https nextcloud configuration
-#   become: yes
-#   lineinfile:
-#     path: "{{ nextcloud_install_path }}/cfg/config.php"
-#     regexp: "'overwriteprotocol' => .*"
-#     line: "  'overwriteprotocol' => 'https',"
-#     insertbefore: '^\);'
-#   when: nextcloud_https == true
-
-# - name: Force http nextcloud configuration
-#   become: yes
-#   lineinfile:
-#     path: "{{ nextcloud_install_path }}/data/nextcloud/config/config.php"
-#     regexp: "'overwriteprotocol' => .*"
-#     line: "  'overwriteprotocol' => 'http',"
-#     insertbefore: '^\);'
-#   when: nextcloud_https == false
-
-# - name: Set proxy in nextcloud config
-#   become: yes
-#   lineinfile:
-#     path: "{{ nextcloud_dir }}/data/nextcloud/config/config.php"
-#     regexp: "'trusted_proxies' =>"
-#     line: "  'trusted_proxies' => [ 'traefik' ],"
-#     insertbefore: '^\);'
-
-# - name: Enable external apps files external
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_dir }}"
-#     cmd: docker-compose exec -u www-data -T nextcloud php occ app:enable files_external
-
-# - name: Disable external apps ldap
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_dir }}"
-#     cmd: docker-compose exec -u www-data -T nextcloud php occ app:disable user_ldap
- 
-# - name: Upload nextcloud ldap config
-#   become: yes
-#   template:
-#     src: nextcloud-ldap-config.json
-#     dest: "{{ nextcloud_dir }}/data/nextcloud/config/ldap.config.json"
-#     mode: '0644'
-#     owner: '33'
-
-# - name: Push nextcloud ldap config file
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_dir }}"
-#     cmd: docker cp -a {{ nextcloud_dir }}/data/nextcloud/config/ldap.config.json {{ nextcloud_container.stdout }}:/var/www/html/config/ldap.config.json
-#   when: persistent != 'true'
-
-# - name: Set nextcloud ldap config
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_dir }}"
-#     cmd: docker-compose exec -u www-data -T nextcloud php occ config:import config/ldap.config.json
-
-# - name: Set nextcloud config rights
-#   become: yes
-#   file:
-#     path: "{{ nextcloud_dir }}/data/nextcloud/config/config.php"
-#     owner: '33'
-#   when: persistent != 'true'
-
-# - name: Push nextcloud config file
-#   become: yes
-#   shell:
-#     chdir: "{{ nextcloud_dir }}"
-#     cmd: docker cp -a {{ nextcloud_dir }}/data/nextcloud/config/config.php {{ nextcloud_container.stdout }}:/var/www/html/config/config.php
-#   when: persistent != 'true'
+- name: Configure
+  ansible.builtin.include_tasks: configure.yml
+  args:
+    apply:
+      tags: [ 'nextcloud/configure' ]
+  tags: [ 'always' ]

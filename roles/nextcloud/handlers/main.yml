@@ -1,0 +1,5 @@
+---
+- name: restart nextcloud
+  ansible.builtin.command:
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: docker compose up -d
