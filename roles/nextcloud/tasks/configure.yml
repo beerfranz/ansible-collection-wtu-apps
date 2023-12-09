@@ -19,11 +19,20 @@
   ansible.builtin.shell:
     chdir: "{{ nextcloud_install_path }}"
     cmd: |
-      {{ nextcloud_occ_bin }} config:app:set admin_audit logfile --value=/dev/stdout && \
-      {{ nextcloud_occ_bin }} config:system:set logfile --value '/dev/stdout' && \
       {{ nextcloud_occ_bin }} config:system:set allow_user_to_change_display_name --value false --type boolean && \
-      {{ nextcloud_occ_bin }} config:system:set hide_login_form --value true --type boolean && \
-      {{ nextcloud_occ_bin }} config:system:set lost_password_link --value '#'
+      {{ nextcloud_occ_bin }} config:system:set hide_login_form --value true --type boolean
+
+# This configs make troubles for docker
+# {{ nextcloud_occ_bin }} config:app:set admin_audit logfile --value=/dev/stdout && \
+# {{ nextcloud_occ_bin }} config:system:set logfile --value '/dev/stdout' && \
+
+- name: Configure lost password link
+  when: nextcloud_lost_password_url is defined
+  tags: [ 'nextcloud/configure/miscs' ]
+  ansible.builtin.shell:
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: |
+      {{ nextcloud_occ_bin }} config:system:set lost_password_link --value '{{ nextcloud_lost_password_url }}'
 
 - name: Configure cron
   ansible.builtin.shell:
@@ -95,9 +104,9 @@
     cmd: |
       {{ nextcloud_occ_bin }} saml:config:set \
         --general-idp0_display_name {{ nextcloud_sso_saml_name }} \
-        --general-uid_mapping Subject \
+        --general-uid_mapping {{ nextcloud_sso_saml_mapping_uid }} \
         --idp-singleSignOnService.url {{ nextcloud_sso_saml_url }} \
         --idp-singleLogoutService.url {{ nextcloud_sso_saml_logout_url }} \
         --idp-entityId {{ nextcloud_sso_saml_url }} \
-        --idp-x509cert {{ nextcloud_sso_saml_fingerprint }} \
+        --idp-x509cert "{{ nextcloud_sso_saml_certificate | default(nextcloud_sso_saml_fingerprint) }}" \
         1

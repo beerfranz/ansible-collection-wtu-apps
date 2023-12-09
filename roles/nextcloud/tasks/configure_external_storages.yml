@@ -20,7 +20,8 @@
   ansible.builtin.shell:
     executable: /bin/bash
     chdir: "{{ nextcloud_install_path }}"
-    cmd: "{{ nextcloud_occ_bin }} files_external:create {{ item.mount_point }} {{ item.storage }} {{ item.authentication_type }}"
+    cmd: |
+      {{ nextcloud_occ_bin }} files_external:create "{{ item.mount_point }}" "{{ item.storage }}" {{ item.authentication_type }}
 
 - name: Set external storage options
   with_items: "{{ nextcloud_external_storages }}"

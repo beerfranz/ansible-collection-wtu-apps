@@ -56,6 +56,8 @@ nextcloud_objectstore_s3_autocreate: "false"
 
 nextcloud_external_storages: []
 
+nextcloud_lost_password_url:
+
 nextcloud_install_apps:
   - user_saml
   - sociallogin
@@ -74,6 +76,8 @@ nextcloud_sso_saml_enabled: no
 nextcloud_sso_saml_url:
 nextcloud_sso_saml_logout_url: 
 nextcloud_sso_saml_fingerprint:
+nextcloud_sso_saml_certificate:
+nextcloud_sso_saml_mapping_uid: Subject
 nextcloud_sso_saml_name: 
 nextcloud_sso_saml_allow_multiple_user_back_ends: 0
 nextcloud_sso_saml_use_saml_auth_for_desktop: 1
