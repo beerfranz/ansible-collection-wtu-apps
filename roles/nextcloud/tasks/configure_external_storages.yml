@@ -66,3 +66,15 @@
 #     chdir: "{{ nextcloud_install_path }}"
 #     cmd: "{{ nextcloud_occ_bin }} --output=json files_external:verify {{ item.mount_id }}"
 #   register: nc_external_storages_verify_output
+
+- name: Set external storage rights
+  with_items: "{{ nextcloud_external_storages }}"
+  ansible.builtin.shell:
+    executable: /bin/bash
+    chdir: "{{ nextcloud_install_path }}"
+    cmd: |
+      {{ nextcloud_occ_bin }} files_external:applicable --remove-all && \    
+      {{ nextcloud_occ_bin }} files_external:applicable \
+        {% for _group in item.applicable_groups %} --add-group {{ _group }} {% endfor %} \
+        {% for _user in item.applicable_users %} --add-user {{ _user }} {% endfor %} \
+        {{ item.mount_id }}
